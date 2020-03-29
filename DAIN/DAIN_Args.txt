@@ -1,0 +1,103 @@
+*************DAIN Parameters**************************************************************
+1)
+-netName 
+-default= DAIN
+-choices =DAIN or DAIN_slowmotion
+-function = 'model architecture'
+3)
+-datasetName(for train)
+-default= Vimeo_90K_interp
+4)
+-datasetPath
+5)
+-dataset_split
+-default=97
+-function="Split a dataset into training and validation by percentage"
+6)
+-seed
+-default=1, 
+-function='random seed'
+7)
+-numEpoch 
+default=100
+8)
+-batch_size
+-default=1
+9)
+-workers
+-default=8 
+-function= 'parallel workers for loading training samples (default : 1.6*10 = 16)')
+10)
+-channels
+-default=3,
+-choices = [1,3]
+11)
+filter_size
+default=4
+function = 'the size of filters used'                    
+choices=[2,4,6, 5,51]
+12)
+-lr 
+-default= 0.002, 
+-function= 'the basic learning rate for three subnetworks'
+13)
+-rectify_lr 
+-default=0.001, 
+-function= 'the learning rate for rectify/refine subnetworks (default: 0.001)')
+14)
+--save_which
+-default=1 
+choices=[0,1]
+-function='choose which result to save: 0 ==> interpolated, 1==> rectified
+15)
+-time_step  
+default=0.5
+help='choose the time steps'
+*********number of interpolated Frames  =(1/time_step)-1*********************
+16)
+-flow_lr_coe 
+-default=0.01
+-function = 'relative learning rate w.r.t basic learning rate'
+17)
+-occ_lr_coe
+- default=1.0,
+-function= 'relative learning rate w.r.t basic learning rate'
+
+18)
+-filter_lr_coe 
+-default=1.0
+-function = 'relative learning rate w.r.t basic learning rate'
+19)
+-alpha
+default=[0.0, 1.0]
+-function= 'the ration of loss for interpolated and rectified result (default: [0.0, 1.0])')
+
+20)
+-pretrained
+-default=None, 
+-function='path to the pretrained model weights'
+
+21)
+-no-date
+-function='don\'t append date timestamp to folder' 
+
+22)
+-use_cuda
+-default= True 
+
+23)
+-use_cudnn
+-default=1
+
+24)
+-dtype default=torch.cuda.FloatTensor, choices = [torch.cuda.FloatTensor,torch.FloatTensor]
+-function= 'tensor data type '
+
+25)
+-uid
+-default= None
+-function='unique id for the training'
+
+26)
+-force
+-function='force to override the given uid'
