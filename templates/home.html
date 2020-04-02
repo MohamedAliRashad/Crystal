@@ -11,7 +11,7 @@
   <meta name="twitter:title" content="Untitled" />
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
   <!-- Compressed Styles -->
-  <link href="../static/css/slides.min.css?506341" rel="stylesheet" type="text/css">
+  <link href="{{ url_for('static', filename='css/slides.min.css') }}" rel="stylesheet" type="text/css">
 
 
   <!-- Fonts and Material Icons -->
@@ -224,7 +224,7 @@
     </div>
   </nav>
 
-  <!-- Sidebar -->
+  Sidebar
   <nav class="sidebar" data-sidebar-id="1">
     <div class="close"><svg>
         <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#close"></use>
@@ -317,7 +317,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
   <!-- Compressed Scripts -->
-  <script src="../static/js/slides.min.js?506341" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename='js/slides.min.js') }}" type="text/javascript"></script>
 
   <!-- for desktop -->
   <script> window.disableOnScroll = 0; </script>
