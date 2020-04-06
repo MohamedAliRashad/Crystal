@@ -1,2 +1,2 @@
-# Vanilla
-Make Videos Better
+# Crystal
+Do Less, Crystalize More
