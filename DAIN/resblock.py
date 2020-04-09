@@ -8,15 +8,10 @@ from utils import BasicBlock
 
 
 class MultipleBasicBlock(nn.Module):
-    def __init__(
-        self, input_feature, block, num_blocks, intermediate_feature=64, dense=True
-    ):
+    def __init__(self, input_feature, block=BasicBlock, intermediate_feature=64):
         super(MultipleBasicBlock, self).__init__()
-        self.dense = dense
-        self.num_block = num_blocks
-        self.intermediate_feature = intermediate_feature
 
-        self.first_block = nn.Sequential(
+        self.block1 = nn.Sequential(
             nn.Conv2d(
                 input_feature,
                 intermediate_feature,
@@ -28,12 +23,11 @@ class MultipleBasicBlock(nn.Module):
             nn.ReLU(inplace=True),
         )
 
-        blocks = []
-        for i in range(num_blocks):
-            blocks.append(block(intermediate_feature, intermediate_feature, dilation=1))
+        self.block2 = block(intermediate_feature, intermediate_feature, dilation=1)
+        self.block3 = block(intermediate_feature, intermediate_feature, dilation=1)
+        self.block4 = block(intermediate_feature, intermediate_feature, dilation=1)
 
-        self.intermediate_blocks = nn.Sequential(*blocks)
-        self.last_block = nn.Conv2d(intermediate_feature, 3, (3, 3), 1, (1, 1))
+        self.block5 = nn.Conv2d(intermediate_feature, 3, (3, 3), 1, (1, 1))
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -44,18 +38,15 @@ class MultipleBasicBlock(nn.Module):
                 m.bias.data.zero_()
 
     def forward(self, x):
-        x = self.first_block(x)
-        x = self.intermediate_blocks(x)
-        x = self.last_block(x)
+        x = self.block1(x)
+        x = self.block2(x)
+        x = self.block3(x)
+        x = self.block4(x)
+        x = self.block5(x)
         return x
-
-
-def MultipleBasicBlock_4(input_feature, intermediate_feature=64):
-    model = MultipleBasicBlock(input_feature, BasicBlock, 4, intermediate_feature)
-    return model
 
 
 if __name__ == "__main__":
 
-    model = MultipleBasicBlock(200, BasicBlock, 4)
-    # print(model)
+    model = MultipleBasicBlock(200, BasicBlock)
+    print(model)
