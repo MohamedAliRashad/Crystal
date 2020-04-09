@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 import torch
 import torch.nn as nn
-from my_package.FilterInterpolation import FilterInterpolationModule
-from my_package.FlowProjection import FlowProjectionModule
-from my_package.DepthFlowProjection import DepthFlowProjectionModule
 
-from Stack import Stack
-
+import MegaDepth
 import PWCNet
 import S2D_models
-import Resblock
-import MegaDepth
+from my_package.DepthFlowProjection import DepthFlowProjectionModule
+from my_package.FilterInterpolation import FilterInterpolationModule
+from my_package.FlowProjection import FlowProjectionModule
+from resblock import MultipleBasicBlock
+from s2df import S2DF
+from Stack import Stack
 
 
 class DAIN(torch.nn.Module):
@@ -34,12 +34,10 @@ class DAIN(torch.nn.Module):
             "filter",
         )
 
-        self.ctxNet = S2D_models.__dict__["S2DF_3dense"]()
+        self.ctxNet = S2DF()
         self.ctx_ch = 3 * 64 + 3
 
-        self.rectifyNet = Resblock.__dict__["MultipleBasicBlock_4"](
-            3 + 3 + 3 + 2 * 1 + 2 * 2 + 16 * 2 + 2 * self.ctx_ch, 128
-        )
+        self.rectifyNet = MultipleBasicBlock(3 + 3 + 3 + 2 * 1 + 2 * 2 + 16 * 2 + 2 * self.ctx_ch, intermediate_feature=128)
 
         self._initialize_weights()
 
