@@ -1,8 +1,8 @@
-import torch.nn as nn
 import math
-import torch.utils.model_zoo as model_zoo
-import torch.nn.init as weight_init
+
 import torch
+import torch.nn as nn
+import torch.nn.init as weight_init
 
 
 def conv3x3(in_planes, out_planes, dilation=1, stride=1):
