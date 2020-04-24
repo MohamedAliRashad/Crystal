@@ -11,6 +11,8 @@
   <meta name="twitter:title" content="Untitled" />
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
   <!-- Compressed Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <link href="{{ url_for('static', filename='css/slides.min.css') }}" rel="stylesheet" type="text/css">
 
 
@@ -25,7 +27,7 @@
 
 </head>
 
-<body class="slides animated noPreload">
+<body class="slides animated noPreload" style="scroll-behavior: smooth; overflow-y: scroll; position: relative;">
   <svg id="customSvgLibrary" xmlns="http://www.w3.org/2000/svg" style="display:none" id="customSvgLibrary">
 
     <symbol id="logo" viewBox="0 0 106 31">
@@ -207,9 +209,6 @@
           <li><a href="#">Upgrade</a></li>
           <li><a href="#">Help</a></li>
           <li><a href="#">Explore</a></li>
-          <li><a href="http://facebook.com/designmodo" target="_blank" class="shift-up-2"><svg>
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#facebook"></use>
-              </svg></a></li>
         </ul>
       </div>
       <div class="right"><a class="button blue rounded small" href="#">Profile</a></div>
@@ -224,7 +223,6 @@
     </div>
   </nav>
 
-  Sidebar
   <nav class="sidebar" data-sidebar-id="1">
     <div class="close"><svg>
         <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#close"></use>
@@ -280,11 +278,52 @@
               </svg>
             </div>
             <p class="large ae-3"><span class="opacity-8">Improve, Apdapt, Evolve</span></p>
-            <form class="slides-form" enctype="multipart/form-data" method="POST">
+            <div class="container ae-4">
+              <div class="row">
+                <div class="col">
+
+                  <div class="mb-3 mt-3">
+
+                    <h2 class="mb-3 ae-4" style="font-weight: 300">Upload video</h2>
+
+                    <div class="form-group mb-3">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" name="file_input" id="file_input"
+                          oninput="input_filename();">
+                        <label id="file_input_label" class="custom-file-label" for="image">Select file</label>
+                      </div>
+                    </div>
+
+                    <button onclick="upload('{{ request.url }}');" id="upload_btn"
+                      class="btn btn-primary">Upload</button>
+
+                    <button class="btn btn-primary d-none" id="loading_btn" type="button" disabled>
+                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      Uploading...
+                    </button>
+
+                    <button type="button" id="cancel_btn" class="btn btn-secondary d-none">Cancel upload</button>
+
+                  </div>
+
+                  <div id="progress_wrapper" class="d-none">
+                    <label id="progress_status"></label>
+                    <div class="progress mb-3">
+                      <div id="progress" class="progress-bar success" role="progressbar" aria-valuenow="25"
+                        aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                  </div>
+
+                  <div id="alert_wrapper"></div>
+
+                </div>
+              </div>
+            </div>
+            <!-- <form class="slides-form" enctype="multipart/form-data" method="POST">
               <input type="file" class="button round rounded input-9 ae-4 fromCenter" name="file" />
               <button type="submit" class="button blue rounded button-9 ae-7 fromCenter" name="button">Upload
                 Video</button>
-            </form>
+            </form> -->
           </div>
 
         </div>
@@ -303,7 +342,7 @@
         <div class="wrap">
           <div class="fix-10-12">
             <div class="embedVideo popupContent shadow rounded">
-              <iframe data-src="../static/Dain.mp4" frameborder="0"
+              <iframe data-src="{{url_for('static', filename='Dain.mp4')}}" frameborder="0"
                 allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; loop;"
                 allowfullscreen></iframe>
             </div>
@@ -318,6 +357,9 @@
 
   <!-- Compressed Scripts -->
   <script src="{{ url_for('static', filename='js/slides.min.js') }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename='js/index.js') }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}" type="text/javascript"></script>
+
 
   <!-- for desktop -->
   <script> window.disableOnScroll = 0; </script>
