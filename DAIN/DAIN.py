@@ -3,14 +3,13 @@ import torch
 import torch.nn as nn
 
 import MegaDepth
-import PWCNet
-import S2D_models
 from my_package.DepthFlowProjection import DepthFlowProjectionModule
 from my_package.FilterInterpolation import FilterInterpolationModule
 from my_package.FlowProjection import FlowProjectionModule
+from pwcnet import PWCDCNet
 from resblock import MultipleBasicBlock
 from s2df import S2DF
-from Stack import Stack
+from stack import Stack
 
 
 class DAIN(torch.nn.Module):
@@ -41,10 +40,7 @@ class DAIN(torch.nn.Module):
 
         self._initialize_weights()
 
-        if self.training:
-            self.flownets = PWCNet.__dict__["pwc_dc_net"]("PWCNet/pwc_net.pth.tar")
-        else:
-            self.flownets = PWCNet.__dict__["pwc_dc_net"]()
+        self.flownets = PWCDCNet()
         self.div_flow = 20.0
 
         # extract depth information
