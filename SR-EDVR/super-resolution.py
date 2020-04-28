@@ -8,7 +8,7 @@ import torch
 
 import utils.util as util
 import utils.data_util as data_util
-import models.archs.EDVR_arch as EDVR_arch
+import archs.EDVR_arch as EDVR_arch
 
 
 
