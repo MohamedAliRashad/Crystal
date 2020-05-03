@@ -2,7 +2,7 @@
 import torch
 import torch.nn as nn
 
-import MegaDepth
+from megadepth import HourGlass
 from my_package.DepthFlowProjection import DepthFlowProjectionModule
 from my_package.FilterInterpolation import FilterInterpolationModule
 from my_package.FlowProjection import FlowProjectionModule
@@ -13,7 +13,7 @@ from stack import Stack
 
 
 class DAIN(torch.nn.Module):
-    def __init__(self, channel=3, filter_size=4, timestep=0.5, training=True):
+    def __init__(self, channel=3, filter_size=4, timestep=0.5, training=False):
 
         # base class initialization
         super(DAIN, self).__init__()
@@ -44,12 +44,7 @@ class DAIN(torch.nn.Module):
         self.div_flow = 20.0
 
         # extract depth information
-        if self.training:
-            self.depthNet = MegaDepth.__dict__["HourGlass"](
-                "MegaDepth/checkpoints/test_local/best_generalization_net_G.pth"
-            )
-        else:
-            self.depthNet = MegaDepth.__dict__["HourGlass"]()
+        self.depthNet = HourGlass()
 
         return
 
