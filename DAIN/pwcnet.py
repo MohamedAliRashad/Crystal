@@ -7,7 +7,7 @@ from correlation_package_pytorch1_0.correlation import (
 import numpy as np
 from utils import conv, predict_flow, deconv, block_1, block_2
 
-
+    
 class PWCDCNet(nn.Module):
     def __init__(self, md=4):
 
@@ -200,4 +200,7 @@ def pwc_dc_net(path=None):
 
 if __name__ == "__main__":
     p = PWCDCNet()
-    print(p)
+    # print(p)
+    from torch.hub import load_state_dict_from_url
+    state_dict = load_state_dict_from_url("http://vllab1.ucmerced.edu/~wenbobao/DAIN/pwc_net.pth.tar")
+    p.load_state_dict(state_dict)
