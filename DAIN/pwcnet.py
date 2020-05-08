@@ -1,9 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from correlation_package_pytorch1_0.correlation import (
-    Correlation,
-)  # pytorch0.4 version
+from Correlation import CorrelationModule
 import numpy as np
 from utils import conv, predict_flow, deconv, block_1, block_2
 
@@ -24,7 +22,7 @@ class PWCDCNet(nn.Module):
         self.c5 = block_1(96, 128, kernel_size=3)
         self.c6 = block_1(128, 196, kernel_size=3)
 
-        self.corr = Correlation(
+        self.corr = CorrelationModule(
             pad_size=md,
             kernel_size=1,
             max_displacement=md,

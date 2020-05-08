@@ -3,9 +3,9 @@ import torch
 import torch.nn as nn
 
 from megadepth import HourGlass
-from my_package.DepthFlowProjection import DepthFlowProjectionModule
-from my_package.FilterInterpolation import FilterInterpolationModule
-from my_package.FlowProjection import FlowProjectionModule
+from DepthFlowProjection import DepthFlowProjectionModule
+from FilterInterpolation import FilterInterpolationModule
+from FlowProjection import FlowProjectionModule
 from pwcnet import PWCDCNet
 from resblock import MultipleBasicBlock
 from s2df import S2DF
@@ -451,3 +451,10 @@ class DAIN(torch.nn.Module):
             ]
         )
         return layers
+
+if __name__ == "__main__":
+    d = DAIN()
+    # print(d)
+    from torch.hub import load_state_dict_from_url
+    state_dict = load_state_dict_from_url("http://vllab1.ucmerced.edu/~wenbobao/DAIN/best.pth")
+    d.load_state_dict(state_dict)
