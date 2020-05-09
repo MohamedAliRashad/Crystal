@@ -10,6 +10,17 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = 'super secret'
 
+def load_DAIN():
+    # Let the magic happen
+    from DAIN.DAIN import DAIN
+    module = DAIN()
+    
+    # load the weights online
+    from torch.hub import load_state_dict_from_url
+    state_dict = load_state_dict_from_url("http://vllab1.ucmerced.edu/~wenbobao/DAIN/best.pth")
+    module.load_state_dict(state_dict)
+
+    return module
 
 def allowed_file(filename):
     return '.' in filename and \
