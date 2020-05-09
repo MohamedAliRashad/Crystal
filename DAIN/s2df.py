@@ -3,7 +3,7 @@ import math
 import torch
 import torch.nn as nn
 
-from utils import BasicBlock
+from .utils import BasicBlock
 
 
 class S2DF(nn.Module):

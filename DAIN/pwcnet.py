@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from Correlation import CorrelationModule
+from .Correlation import CorrelationModule
 import numpy as np
-from utils import conv, predict_flow, deconv, block_1, block_2
+from .utils import conv, predict_flow, deconv, block_1, block_2
 
 
 class PWCDCNet(nn.Module):

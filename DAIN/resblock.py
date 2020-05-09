@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.init as weight_init
 
-from utils import BasicBlock
+from .utils import BasicBlock
 
 
 class MultipleBasicBlock(nn.Module):
@@ -27,7 +27,7 @@ class MultipleBasicBlock(nn.Module):
         self.block3 = block(intermediate_feature, intermediate_feature, dilation=1)
         self.block4 = block(intermediate_feature, intermediate_feature, dilation=1)
 
-        self.block5 = nn.Conv2d(intermediate_feature, 3, (3, 3), 1, (1, 1))
+        self.block5 = nn.Sequential(*[nn.Conv2d(intermediate_feature, 3 , (3, 3), 1, (1, 1))])
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
