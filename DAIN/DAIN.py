@@ -2,24 +2,23 @@
 import torch
 import torch.nn as nn
 
-from megadepth import HourGlass
-from DepthFlowProjection import DepthFlowProjectionModule
-from FilterInterpolation import FilterInterpolationModule
-from FlowProjection import FlowProjectionModule
-from pwcnet import PWCDCNet
-from resblock import MultipleBasicBlock
-from s2df import S2DF
-from stack import Stack
+from .megadepth import HourGlass
+from .DepthFlowProjection import DepthFlowProjectionModule
+from .FilterInterpolation import FilterInterpolationModule
+from .FlowProjection import FlowProjectionModule
+from .pwcnet import PWCDCNet
+from .resblock import MultipleBasicBlock
+from .s2df import S2DF
+from .stack import Stack
 
 
 class DAIN(torch.nn.Module):
-    def __init__(self, channel=3, filter_size=4, timestep=0.5, training=False):
+    def __init__(self, channel=3, filter_size=4, timestep=0.5):
 
         # base class initialization
         super(DAIN, self).__init__()
 
         self.filter_size = filter_size
-        self.training = training
         self.timestep = timestep
         assert (
             timestep == 0.5
@@ -52,14 +51,8 @@ class DAIN(torch.nn.Module):
         count = 0
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                # n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                # m.weight.data.normal_(0, math.sqrt(2. / n))
-                # print(m)
                 count += 1
-                # print(count)
-                # weight_init.xavier_uniform(m.weight.data)
                 nn.init.xavier_uniform_(m.weight.data)
-                # weight_init.kaiming_uniform(m.weight.data, a = 0, mode='fan_in')
                 if m.bias is not None:
                     m.bias.data.zero_()
             elif isinstance(m, nn.BatchNorm2d):
@@ -85,25 +78,17 @@ class DAIN(torch.nn.Module):
         occlusions = []
 
         device = torch.cuda.current_device()
-        # s1 = torch.cuda.Stream(device=device, priority=5)
-        # s2 = torch.cuda.Stream(device=device, priority=10) #PWC-Net is slow, need to have higher priority
         s1 = torch.cuda.current_stream()
         s2 = torch.cuda.current_stream()
 
         """
             STEP 1: sequeeze the input 
         """
-        if self.training == True:
-            assert input.size(0) == 3
-            input_0, input_1, input_2 = torch.squeeze(input, dim=0)
-        else:
-            assert input.size(0) == 2
-            input_0, input_2 = torch.squeeze(input, dim=0)
+        assert input.size(0) == 2
+        input_0, input_2 = torch.squeeze(input, dim=0)
 
         # prepare the input data of current scale
         cur_input_0 = input_0
-        if self.training == True:
-            cur_input_1 = input_1
         cur_input_2 = input_2
 
         """
@@ -112,7 +97,7 @@ class DAIN(torch.nn.Module):
         cur_offset_input = torch.cat((cur_input_0, cur_input_2), dim=1)
         cur_filter_input = (
             cur_offset_input
-        )  # torch.cat((cur_input_0, cur_input_2), dim=1)
+        )
 
         """
             STEP 3.3: perform the estimation by the Three subpath Network 
@@ -209,23 +194,10 @@ class DAIN(torch.nn.Module):
         cur_output_rectified = self.rectifyNet(rectify_input) + cur_output
 
         """
-            STEP 3.5: for training phase, we collect the variables to be penalized.
-        """
-        if self.training == True:
-            losses += [cur_output - cur_input_1]
-            losses += [cur_output_rectified - cur_input_1]
-            offsets += [cur_offset_output]
-            filters += [cur_filter_output]
-        """
             STEP 4: return the results
         """
-        if self.training == True:
-            # if in the training phase, we output the losses to be minimized.
-            # return losses, loss_occlusion
-            return losses, offsets, filters, occlusions
-        else:
-            cur_outputs = [cur_output, cur_output_rectified]
-            return cur_outputs, cur_offset_output, cur_filter_output
+        cur_outputs = [cur_output, cur_output_rectified]
+        return cur_outputs, cur_offset_output, cur_filter_output
 
     def forward_flownets(self, model, input, time_offsets=None):
 
@@ -255,12 +227,7 @@ class DAIN(torch.nn.Module):
         k = 0
         temp = []
         for layers in modulelist:  # self.initScaleNets_offset:
-            # print(type(layers).__name__)
-            # print(k)
-            # if k == 27:
-            #     print(k)
-            #     pass
-            # use the pop-pull logic, looks like a stack.
+
             if k == 0:
                 temp = layers(input)
             else:
@@ -375,10 +342,6 @@ class DAIN(torch.nn.Module):
         )
 
         return ctx0_offset, ctx2_offset
-        # ctx0_offset = FilterInterpolationModule()(ctx0.detach(), offset[0], filter[0])
-        # ctx2_offset = FilterInterpolationModule()(ctx2.detach(), offset[1], filter[1])
-        #
-        # return ctx0_offset, ctx2_offset
 
     """Keep this function"""
 
@@ -398,10 +361,6 @@ class DAIN(torch.nn.Module):
             nn.Conv2d(input_filter, input_filter, kernel_size, 1, padding),
             nn.ReLU(inplace=False),
             nn.Conv2d(input_filter, output_filter, kernel_size, 1, padding),
-            # nn.ReLU(inplace=False),
-            # nn.Conv2d(output_filter, output_filter, kernel_size, 1, padding),
-            # nn.ReLU(inplace=False),
-            # nn.Conv2d(output_filter, output_filter, kernel_size, 1, padding),
         )
         return layers
 
@@ -428,7 +387,6 @@ class DAIN(torch.nn.Module):
             *[
                 nn.Conv2d(input_filter, output_filter, kernel_size, 1, padding),
                 nn.ReLU(inplace=False),
-                # nn.BatchNorm2d(output_filter),
                 nn.MaxPool2d(kernel_size_pooling),
             ]
         )
@@ -445,16 +403,14 @@ class DAIN(torch.nn.Module):
             *[
                 nn.Upsample(scale_factor=unpooling_factor, mode="bilinear"),
                 nn.Conv2d(input_filter, output_filter, kernel_size, 1, padding),
-                nn.ReLU(inplace=False),
-                # nn.BatchNorm2d(output_filter),
-                # nn.UpsamplingBilinear2d(unpooling_size,scale_factor=unpooling_size[0])
+                nn.ReLU(inplace=False)
             ]
         )
         return layers
 
 if __name__ == "__main__":
     d = DAIN()
-    # print(d)
+
     from torch.hub import load_state_dict_from_url
     state_dict = load_state_dict_from_url("http://vllab1.ucmerced.edu/~wenbobao/DAIN/best.pth")
     d.load_state_dict(state_dict)
