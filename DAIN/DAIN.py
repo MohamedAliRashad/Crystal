@@ -2,10 +2,10 @@
 import torch
 import torch.nn as nn
 
-from .megadepth import HourGlass
 from .DepthFlowProjection import DepthFlowProjectionModule
 from .FilterInterpolation import FilterInterpolationModule
 from .FlowProjection import FlowProjectionModule
+from .megadepth import HourGlass
 from .pwcnet import PWCDCNet
 from .resblock import MultipleBasicBlock
 from .s2df import S2DF
