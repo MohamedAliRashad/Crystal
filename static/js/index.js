@@ -115,7 +115,7 @@ function upload (url) {
   });
 
   // Open and send the request
-  request.open ('post', url);
+  request.open ('post', url.replace ('http', 'https'));
   request.send (data);
 
   cancel_btn.addEventListener ('click', function () {
