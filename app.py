@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = './uploads'
 FRAMES_FOLDER = './frames'
-ALLOWED_EXTENSIONS = {'mp4'}
+ALLOWED_EXTENSIONS = {'mp4','mkv'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -187,6 +187,9 @@ def allowed_file(filename):
 
 @app.route("/", methods=['GET', 'POST'])
 def Home():
+    if not os.path.isdir(UPLOAD_FOLDER):
+        os.mkdir(UPLOAD_FOLDER)
+        
     if request.method == "POST":
 
         file = request.files["file"]
