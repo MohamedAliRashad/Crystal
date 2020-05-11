@@ -132,3 +132,4 @@ dmypy.json
 test*.py
 *.jpg
 *.mp4
+uploads/*
