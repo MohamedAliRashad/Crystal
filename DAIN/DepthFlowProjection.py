@@ -5,7 +5,7 @@ from torch.utils.cpp_extension import load
 
 lib = load(
     name="depthflowprojection_cuda",
-    sources=["helper/DepthFlowProjection/depthflowprojection_cuda.cc", "helper/DepthFlowProjection/depthflowprojection_cuda_kernel.cu"],
+    sources=["DAIN/helper/DepthFlowProjection/depthflowprojection_cuda.cc", "DAIN/helper/DepthFlowProjection/depthflowprojection_cuda_kernel.cu"],
     verbose=True,
 )
 

@@ -5,7 +5,7 @@ from torch.utils.cpp_extension import load
 
 lib = load(
     name="correlation_cuda",
-    sources=["helper/correlation/correlation_cuda.cc", "helper/correlation/correlation_cuda_kernel.cu"],
+    sources=["DAIN/helper/correlation/correlation_cuda.cc", "DAIN/helper/correlation/correlation_cuda_kernel.cu"],
     verbose=True,
 )
 

@@ -8,7 +8,7 @@ from torch.utils.cpp_extension import load
 
 lib = load(
     name="flowprojection_cuda",
-    sources=["helper/FlowProjection/flowprojection_cuda.cc", "helper/FlowProjection/flowprojection_cuda_kernel.cu"],
+    sources=["DAIN/helper/FlowProjection/flowprojection_cuda.cc", "DAIN/helper/FlowProjection/flowprojection_cuda_kernel.cu"],
     verbose=True,
 )
 

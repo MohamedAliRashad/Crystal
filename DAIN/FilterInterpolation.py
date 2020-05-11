@@ -9,7 +9,7 @@ from torch.utils.cpp_extension import load
 
 lib = load(
     name="filterinterpolation_cuda",
-    sources=["helper/FilterInterpolation/filterinterpolation_cuda.cc", "helper/FilterInterpolation/filterinterpolation_cuda_kernel.cu"],
+    sources=["DAIN/helper/FilterInterpolation/filterinterpolation_cuda.cc", "DAIN/helper/FilterInterpolation/filterinterpolation_cuda_kernel.cu"],
     verbose=True,
 )
 
