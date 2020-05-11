@@ -1,4 +1,4 @@
-from video_utils import *
+from utils.video_utils import *
 
 import torch
 import utils.util as util
@@ -181,9 +181,9 @@ def edvr_video(source_path, data_mode='sharp_bicupic', source_url=None, original
 
 
 if __name__ == "__main__":
-    data_mode = 'sharp_bicupic'
-    source_url = 'https://www.youtube.com/watch?v=n3zAJl5t518'
-    original_video_quality = 144
+    data_mode = 'sharp_bicubic'
+    source_url = 'https://www.youtube.com/watch?v=eypJfOKeSJU'
+    original_video_quality = 240
     finetune_stage2 = True
 
     edvr_video(Path('/content/video.mp4'), data_mode,source_url, 

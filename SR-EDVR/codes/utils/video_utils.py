@@ -16,7 +16,7 @@ workfolder = Path('./video')
 inframes_root = workfolder / "inframes"
 outframes_root = workfolder / "outframes"
 result_folder = workfolder / "result"
-pretrained_models = Path('../experiments/pretrained_models')
+pretrained_models = Path(osp.abspath(osp.join(parent_dir,'../experiments/pretrained_models')))
 
 
 def get_fps(source_path: Path) -> str:
@@ -82,8 +82,7 @@ def make_subfolders(img_path_l, chunk_size):
   return subFolderList
 
 def remove_subfolders():
-  shutil.rmtree(osp.join(parent_dir,'video/inframes/video_subfolders', ignore_errors=True, onerror=None))
-
+  shutil.rmtree(osp.join(parent_dir,'video/inframes/video_subfolders'), ignore_errors=True, onerror=None)
 
 def moveProcessedFrames():
   shutil.rmtree(osp.join(parent_dir,'video/inframes'))
