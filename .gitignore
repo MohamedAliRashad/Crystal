@@ -130,3 +130,5 @@ dmypy.json
 
 # tests
 test*.py
+*.jpg
+*.mp4
