@@ -18,7 +18,7 @@ from video_utils import *
 
 
 
-class Super_Resolution():
+class EDVR():
 
 	def __init__(self, data_mode, video_path, save_path):
 		self.pretrained_models = Path('../experiments/pretrained_models')
