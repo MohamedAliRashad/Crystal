@@ -12,6 +12,7 @@ from flask import (
     url_for,
 )
 from werkzeug.utils import secure_filename
+from utils import video2frames, frames2video, load_DAIN, infer_DAIN
 
 UPLOAD_FOLDER = "./uploads"
 FRAMES_FOLDER = "./frames"
@@ -51,19 +52,46 @@ def Home():
     return render_template("home.html")
 
 
+@app.route("/tour")
+def Tour():
+    return render_template("tour.html")
+
+
+@app.route("/upgrade")
+def Upgrade():
+    return render_template("upgrade.html")
+
+
+@app.route("/help")
+def Help():
+    return render_template("help.html")
+
+
+@app.route("/explore")
+def Explore():
+    return render_template("explore.html")
+
+
+@app.route("/profile")
+def Profile():
+    return render_template("profile.html")
+
+
 @app.route("/download")
 def Download():
-    return render_template("download.html")
-
-
-@app.route("/loading")
-def Loading():
-    return render_template("loading.html")
+    name = "Testing_Deepfaking_First_Order_Motion_Model_for_Image_Animation-9RdQfzM0FR4.mkv"
+    return render_template("download.html", name=name)
 
 
 @app.route("/uploads/<filename>")
 def uploaded_file(filename):
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
+
+@app.route("/uploads/<path:filename>", methods=["GET", "POST"])
+def download_video(filename):
+    uploads = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
+    return send_from_directory(directory=uploads, filename=filename, as_attachment=True)
 
 
 if __name__ == "__main__":
