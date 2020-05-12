@@ -2,6 +2,7 @@
 <html>
 
 <head>
+  <title>Vanilla</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -296,6 +297,9 @@
 
                     <button onclick="upload('{{ request.url }}');" id="upload_btn"
                       class="btn btn-primary">Upload</button>
+
+                    <h2 class="mb-3 ae-4" style="font-weight: 300">OR Youtube link</h2>
+                    <input type="text" class="form-control" name="text" placeholder="www.youtube.com">
 
                     <button class="btn btn-primary d-none" id="loading_btn" type="button" disabled>
                       <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>

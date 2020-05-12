@@ -1,6 +1,6 @@
 torch
 flask
-opencv-python
-imageio
-scipy
+ninja
+numpy
 tqdm
+opencv-python
