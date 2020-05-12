@@ -1,6 +1,19 @@
 {% extends "layout.html"%}
 
 {% block content %}
-
+<div class="fix-5-12">
+    <h2 class="ae-1" style="font-size:4rem;">The Crystals</h2>
+    <br>
+    <div class="row">
+        <div class="column">
+            <img class="ae-2" src="{{ url_for('static',filename='assets/images/rashad.jpg') }}">
+            <img class="ae-6" src="{{ url_for('static',filename='assets/images/akrm.jpg') }}">
+        </div>
+        <div class="column">
+            <img class="ae-4" src="{{ url_for('static',filename='assets/images/nasr.jpg') }}">
+            <img class="ae-8" src="{{ url_for('static',filename='assets/images/bishr.jpg') }}">
+        </div>
+    </div>
+</div>
 
 {% endblock content %}
