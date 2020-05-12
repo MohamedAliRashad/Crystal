@@ -80,6 +80,9 @@ def Explore():
 def Profile():
     return render_template("profile.html")
 
+@app.route("/game")
+def Game():
+    return render_template("game.html")
 
 @app.route("/download")
 def Download():
