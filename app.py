@@ -91,11 +91,9 @@ def Profile():
     return render_template("profile.html")
 
 
-@app.route("/download")
-def Download():
-    name = os.listdir(os.path.join(
-        app.root_path, app.config["DOWNLOAD_FOLDER"]))[0]
-    return render_template("download.html", name=name)
+@app.route("/download/<filename>")
+def Download(filename):
+    return render_template("download.html", name=filename)
 
 
 @app.route("/downloads/<path:filename>", methods=["GET", "POST"])
