@@ -24,18 +24,21 @@ from video_utils import *
 
 class Super_Resolution():
 
-	def __init__(self):
+	def __init__(self, data_mode, stage):
 		self.pretrained_models = Path('../experiments/pretrained_models')
+		self.data_mode = data_mode # options: vid4 | sharp_bicubic | blur_bicubic | blur | blur_comp
+		self.stage = stage
 
 
-	def edvrPredict(self, data_mode, chunk_size, stage):
+
+	def __edvrPredict(self, chunk_size):
 	  device = torch.device('cuda')
 	  os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-	  data_mode = data_mode  # Vid4 | sharp_bicubic | blur_bicubic | blur | blur_comp
+	  data_mode = self.data_mode  
 	  # Vid4: SR
 	  # REDS4: sharp_bicubic (SR-clean), blur_bicubic (SR-blur);
 	  #        blur (deblur-clean), blur_comp (deblur-compression).
-	  stage = stage  # 1 or 2, use two stage strategy for REDS dataset.
+	  stage = self.stage  # 1 or 2, use two stage strategy for REDS dataset.
 	  flip_test = False
 	  ############################################################################
 	  #### model
