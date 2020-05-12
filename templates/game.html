@@ -34,7 +34,7 @@
     request.onload = function () {
       if (request.status === 200 && request.responseText === 'done') {
         // long process finished successfully, redirect user
-        window.location = '/success';
+        window.location = '/download/' + "{{ filename }}" + '/';
       } else {
         // ops, we got an error from the server
         alert('Something went wrong.');
