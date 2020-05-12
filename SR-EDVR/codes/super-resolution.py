@@ -12,12 +12,11 @@ from utils.video_utils import *
 
 class Super_Resolution():
 
-	def __init__(self, data_mode, video_path, save_path,chunk_size=100,finetune=True):
+	def __init__(self, data_mode, video_path,chunk_size=100,finetune=True):
 		self.pretrained_models = Path('../experiments/pretrained_models')
 		self.data_mode = data_mode # options: vid4 | sharp_bicubic | blur_bicubic | blur | blur_comp
 		#self.fine_tune_stage2 = True
 		self.video_path = video_path
-		self.save_path = save_path
 		self.chunk_size = chunk_size
 		self.fine_tune_stage2 = finetune
 
@@ -147,7 +146,7 @@ class Super_Resolution():
 
 	            if save_imgs:
 	                cv2.imwrite(osp.join(save_subfolder, '{}.jpg'.format(img_name)), output)
-	                # print('Saved Image:', str(osp.join(save_subfolder, '{}.jpg'.format(img_name))))
+#	                print('Saved Image:', str(osp.join(save_subfolder, '{}.jpg'.format(img_name))))
 
 
 
@@ -166,13 +165,13 @@ class Super_Resolution():
 			self.__edvrPredict(self.chunk_size, 2)
 
 		# build back video
-		build_video(self.video_path, self.save_path)
+		build_video(self.video_path)
 
 
 
 
-if __name__ == '__main__':
-	enhancer = Super_Resolution('blur',Path('/content/video.mp4'),Path('/content/EDVR/codes/video/'))
-	enhancer.edvr_video()
-	pass
+#if __name__ == '__main__':
+#	enhancer = Super_Resolution('sharp_bicubic',Path('/content/video.mp4'))
+#	enhancer.edvr_video()
+#	pass
 

@@ -1,26 +1,33 @@
-import ffmpeg
 import os
 import os.path as osp
-import glob
-import cv2
+import ffmpeg
+import gc
 import shutil
-import re
-import youtube_dl
-from PIL import Image
 from pathlib import Path
-from tqdm import tqdm
+from PIL import Image
+import youtube_dl
+import re
 
 
-parent_dir = os.path.dirname(os.path.realpath(__file__))
-workfolder = Path('./video')
+
+# Paths
+
+
+workfolder = Path('./video').absolute()
+source_folder = workfolder / "source"
 inframes_root = workfolder / "inframes"
+audio_root = workfolder / "audio"
 outframes_root = workfolder / "outframes"
 result_folder = workfolder / "result"
-pretrained_models = Path(osp.abspath(osp.join(parent_dir,'../experiments/pretrained_models')))
+source_img_path = inframes_root / "video_subfolders"
 
+
+
+def clean_mem():
+    # torch.cuda.empty_cache()
+    gc.collect()
 
 def get_fps(source_path: Path) -> str:
-    print(source_path)
     probe = ffmpeg.probe(str(source_path))
     stream_data = next(
         (stream for stream in probe['streams'] if stream['codec_type'] == 'video'),
@@ -67,7 +74,6 @@ def extract_raw_frames(source_path: Path):
 def make_subfolders(img_path_l, chunk_size):
   i = 0
   subFolderList = []
-  source_img_path = Path(osp.join(parent_dir,'video/inframes/video_subfolders'))
   source_img_path.mkdir(parents=True, exist_ok=True)
   for img in img_path_l:
     if i % chunk_size == 0:
@@ -82,15 +88,16 @@ def make_subfolders(img_path_l, chunk_size):
   return subFolderList
 
 def remove_subfolders():
-  shutil.rmtree(osp.join(parent_dir,'video/inframes/video_subfolders'), ignore_errors=True, onerror=None)
+  shutil.rmtree('/content/EDVR/codes/video/inframes/video_subfolders', ignore_errors=True, onerror=None)
+
 
 def moveProcessedFrames():
-  shutil.rmtree(osp.join(parent_dir,'video/inframes'))
-  os.rename(osp.join(parent_dir,'video/outframes'), osp.join(parent_dir,'video/inframes'))
+  shutil.rmtree(inframes_root)
+  os.rename(outframes_root, inframes_root)
 
 
 
-def build_video(source_path: Path) -> Path:
+def build_video(source_path):
         out_path = result_folder / (
             source_path.name.replace('.mp4', '_no_audio.mp4')
         )
@@ -112,6 +119,7 @@ def build_video(source_path: Path) -> Path:
         result_path = result_folder / source_path.name
         if result_path.exists():
             result_path.unlink()
+        
         # making copy of non-audio version in case adding back audio doesn't apply or fails.
         shutil.copyfile(str(out_path), str(result_path))
 
