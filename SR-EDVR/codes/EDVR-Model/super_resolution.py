@@ -1,4 +1,3 @@
-import ffmpeg
 import os
 import os.path as osp
 import glob
@@ -6,9 +5,7 @@ import logging
 import cv2
 import torch
 import numpy as np
-import shutil
 import re
-import gc
 import youtube_dl
 from PIL import Image
 from pathlib import Path
@@ -21,13 +18,14 @@ from video_utils import *
 
 
 
-
 class Super_Resolution():
 
-	def __init__(self, data_mode, stage):
+	def __init__(self, data_mode, video_path, save_path):
 		self.pretrained_models = Path('../experiments/pretrained_models')
 		self.data_mode = data_mode # options: vid4 | sharp_bicubic | blur_bicubic | blur | blur_comp
-		self.stage = stage
+		#self.fine_tuning = True
+		self.video_path = video_path
+		self.save_path = save_path
 
 
 
@@ -91,7 +89,7 @@ class Super_Resolution():
 	    model = EDVR_arch.EDVR(128, N_in, 8, 5, back_RBs, predeblur=predeblur, HR_in=HR_in)
 
 	  #### dataset
-	  test_dataset_folder = '/content/EDVR/codes/video/inframes'
+	  test_dataset_folder = inframes_root
 
 	  #### evaluation
 	  crop_border = 0
@@ -162,34 +160,22 @@ class Super_Resolution():
 
 
 
-	def moveProcessedFrames():
-	  shutil.rmtree('/content/EDVR/codes/video/inframes')
-	  os.rename('/content/EDVR/codes/video/outframes', '/content/EDVR/codes/video/inframes')
 
+	def edvr_video(self, data_mode: str, original_quality: str, 
+	               chunk_size: int):
 
-
-
-
-	def edvr_video(source_url: str, source_path: Path, data_mode: str, original_quality: str, 
-	               chunk_size: int, finetune_stage2: bool):
-	    # download video
-	    download_video_from_url(source_url , source_path, original_quality)
-
-	    # extract frames
-	    extract_raw_frames(source_path)
-
-	    # process frames
-	    edvrPredict(data_mode, chunk_size, 1)
+	    # process frames: stage 1 
+	    self.__edvrPredict(self.data_mode, chunk_size, 1)
 
 	    # fine-tune stage 2
-	    if finetune_stage2:
+	    if self.fine_tuning:
 	      # move the stage 1 processed frames over
 	      moveProcessedFrames()
 	      # process again
-	      edvrPredict(data_mode, chunk_size, 2)
+	      self.__edvrPredict(self.data_mode, chunk_size, 2)
 
 	    # build back video
-	    build_video(source_path)
+	    build_video(self.video_path, self.save_path)
 
 
 
