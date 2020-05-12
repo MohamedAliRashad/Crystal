@@ -7,20 +7,24 @@ from pathlib import Path
 from PIL import Image
 import youtube_dl
 import re
+import imageio
+from tqdm import tqdm
+import warnings
+warnings.filterwarnings("ignore")
 
 
 
 # Paths
 
 
-workfolder = Path('./video').absolute()
+
+workfolder = Path(osp.join(Path(__file__).parent.parent.absolute(),'video'))
 source_folder = workfolder / "source"
 inframes_root = workfolder / "inframes"
 audio_root = workfolder / "audio"
 outframes_root = workfolder / "outframes"
 result_folder = workfolder / "result"
 source_img_path = inframes_root / "video_subfolders"
-
 
 
 def clean_mem():
@@ -61,52 +65,50 @@ def purge_images(dir):
   for f in os.listdir(dir):
     if re.search('.*?\.jpg', f):
       os.remove(os.path.join(dir, f))
+##################################################################################################
 
-def extract_raw_frames(source_path: Path):
+def video2frames(video_path, output_dir):
+
+    reader = imageio.get_reader(video_path)
+    meta_data = reader.get_meta_data()
+    fps = meta_data['fps']
+    size = meta_data['size']
+    n_frames = meta_data['nframes']
+
+    extract_raw_frames(video_path, output_dir)
+    vid_path = Path(video_path)
+    name = vid_path.name
+   
+    return {"fps": fps, "name": name, "size": size, "video_path": video_path}
+
+def frames2video(save_path, frames_path, meta_data): 
+    video_path = meta_data["video_path"]
+    print('video_path = %s '%str(video_path),'frames_path = %s '%str(frames_path),'save_path = %s '%str(save_path),sep='\n' )
+    return build_video(video_path, frames_path, save_path, meta_data) # return the path of the saved video
+
+def extract_raw_frames(source_path, save_path):
+
+    inframes_root = Path(save_path)
     inframes_folder = inframes_root / (source_path.stem)
-    inframe_path_template = str(inframes_folder / '%5d.jpg')
+    inframe_path_template = str(inframes_folder / '%6d.jpg')
     inframes_folder.mkdir(parents=True, exist_ok=True)
     purge_images(inframes_folder)
     ffmpeg.input(str(source_path)).output(
         str(inframe_path_template), format='image2', vcodec='mjpeg', qscale=0
     ).run(capture_stdout=True)
 
-def make_subfolders(img_path_l, chunk_size):
-  i = 0
-  subFolderList = []
-  source_img_path.mkdir(parents=True, exist_ok=True)
-  for img in img_path_l:
-    if i % chunk_size == 0:
-      img_path = source_img_path / str(i)
-      img_path.mkdir(parents=True, exist_ok=True)
-      subFolderList.append(str(img_path))
-    i+=1
-    img_name = osp.basename(img)
-    img_path_name = img_path / img_name
-    shutil.copyfile(img, img_path_name)
 
-  return subFolderList
-
-def remove_subfolders():
-  shutil.rmtree('/content/EDVR/codes/video/inframes/video_subfolders', ignore_errors=True, onerror=None)
-
-
-def moveProcessedFrames():
-  shutil.rmtree(inframes_root)
-  os.rename(outframes_root, inframes_root)
-
-
-
-def build_video(source_path, save_path):
+def build_video(source_path, frames_dir, save_path, meta_data):
         out_path = save_path / (
             source_path.name.replace('.mp4', '_no_audio.mp4')
         )
+        outframes_root = frames_dir
         outframes_folder = outframes_root / (source_path.stem)
-        outframes_path_template = str(outframes_folder / '%5d.jpg')
+        outframes_path_template = str(outframes_folder / '%6d.jpg')
         out_path.parent.mkdir(parents=True, exist_ok=True)
         if out_path.exists():
             out_path.unlink()
-        fps = get_fps(source_path)
+        fps = meta_data["fps"]
         print('Original FPS is: ', fps)
 
         ffmpeg.input(
@@ -116,9 +118,10 @@ def build_video(source_path, save_path):
             framerate=fps,
         ).output(str(out_path), crf=17, vcodec='libx264').run(capture_stdout=True)
 
-        result_path = result_folder / source_path.name
+        result_path = save_path / source_path.name
         if result_path.exists():
             result_path.unlink()
+
         # making copy of non-audio version in case adding back audio doesn't apply or fails.
         shutil.copyfile(str(out_path), str(result_path))
 
@@ -145,5 +148,43 @@ def build_video(source_path, save_path):
                 + str(result_path)
                 + '"'
             )
-        print('Video created here: ' + str(result_path))
         return result_path
+
+
+####################################################################################################
+'''
+def extract_raw_frames(source_path: Path):
+    inframes_folder = inframes_root / (source_path.stem)
+    inframe_path_template = str(inframes_folder / '%5d.jpg')
+    inframes_folder.mkdir(parents=True, exist_ok=True)
+    purge_images(inframes_folder)
+    ffmpeg.input(str(source_path)).output(
+        str(inframe_path_template), format='image2', vcodec='mjpeg', qscale=0
+    ).run(capture_stdout=True)
+'''
+def make_subfolders(img_path_l, chunk_size):
+  i = 0
+  subFolderList = []
+  source_img_path.mkdir(parents=True, exist_ok=True)
+  for img in img_path_l:
+    if i % chunk_size == 0:
+      img_path = source_img_path / str(i)
+      img_path.mkdir(parents=True, exist_ok=True)
+      subFolderList.append(str(img_path))
+    i+=1
+    img_name = osp.basename(img)
+    img_path_name = img_path / img_name
+    shutil.copyfile(img, img_path_name)
+
+  return subFolderList
+
+def remove_subfolders():
+  shutil.rmtree(osp.join(inframes_root,'video_subfolders'), ignore_errors=True, onerror=None)
+
+
+def moveProcessedFrames():
+  shutil.rmtree(inframes_root)
+  os.rename(outframes_root, inframes_root)
+
+
+

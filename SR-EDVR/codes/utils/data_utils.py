@@ -88,22 +88,18 @@ def read_img(env, path, size=None):
     return img
 
 
-def read_img_seq(path, imgs):
+def read_img_seq(path):
     """Read a sequence of images from a given folder path
     Args:
         path (list/str): list of image paths/image folder path
-
     Returns:
         imgs (Tensor): size (T, C, H, W), RGB, [0, 1]
     """
-    if type(imgs) is list:
-        img_path_l = imgs
-        #print(img_path_l)
+    if type(path) is list:
+        img_path_l = path
     else:
         img_path_l = sorted(glob.glob(os.path.join(path, '*')))
-
-    img_l = [read_img(None, os.path.join(path, v)) for v in img_path_l]
-
+    img_l = [read_img(None, v) for v in img_path_l]
     # stack to Torch tensor
     imgs = np.stack(img_l, axis=0)
     imgs = imgs[:, :, :, [2, 1, 0]]
@@ -123,7 +119,6 @@ def index_generation(crt_i, max_n, N, padding='reflection'):
             reflection: [2, 1, 0, 1, 2]
             new_info: [4, 3, 0, 1, 2]
             circle: [3, 4, 0, 1, 2]
-
     Returns:
         return_l (list [int]): a list of indexes
     """

@@ -4,19 +4,16 @@ import torch
 #import numpy as np
 from tqdm import tqdm
 import utils.util as util
-import data.util as data_util
-import models.archs.EDVR_arch as EDVR_arch
+import utils.data_utils as data_util
+import archs.EDVR_arch as EDVR_arch
 from utils.video_utils import *
 
 
 
 class Super_Resolution():
-
-	def __init__(self, data_mode, video_path,chunk_size=100,finetune=True):
-		self.pretrained_models = Path('../experiments/pretrained_models')
+	def __init__(self, data_mode,chunk_size=100,finetune=True):
+		self.pretrained_models = Path(osp.join(workfolder.parent.parent,'experiments/pretrained_models'))
 		self.data_mode = data_mode # options: vid4 | sharp_bicubic | blur_bicubic | blur | blur_comp
-		#self.fine_tune_stage2 = True
-		self.video_path = video_path
 		self.chunk_size = chunk_size
 		self.fine_tune_stage2 = finetune
 
@@ -151,13 +148,12 @@ class Super_Resolution():
 
 
 
-	def edvr_video(self):
-
-#		extract_raw_frames(self.video_path)		## for if inframes doesn't yet exist
+	def edvr_video(self,meta_data,vide_path):
 
 		# process frames: stage 1 
 		self.__edvrPredict(self.chunk_size,1)
 		# fine-tune stage 2
+		
 		if self.fine_tune_stage2:
 		# move the stage 1 processed frames over
 			moveProcessedFrames()
@@ -165,13 +161,13 @@ class Super_Resolution():
 			self.__edvrPredict(self.chunk_size, 2)
 
 		# build back video
-		build_video(self.video_path)
-
-
+		return frames2video(result_folder,outframes_root,meta_data)
+		
 
 
 #if __name__ == '__main__':
-#	enhancer = Super_Resolution('sharp_bicubic',Path('/content/video.mp4'))
-#	enhancer.edvr_video()
+#	enhancer = Super_Resolution('blur')
+#	meta_data = video2frames(Path('/content/Crystal/video.mp4'),inframes_root)
+#	enhancer.edvr_video(meta_data,meta_data['video_path'])
 #	pass
 

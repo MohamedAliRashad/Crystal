@@ -3,9 +3,9 @@ import functools
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import models.archs.arch_util as arch_util
+import archs.arch_util as arch_util
 try:
-    from models.archs.dcn.deform_conv import ModulatedDeformConvPack as DCN
+    from archs.dcn.deform_conv import ModulatedDeformConvPack as DCN
 except ImportError:
     raise ImportError('Failed to import DCNv2 module.')
 

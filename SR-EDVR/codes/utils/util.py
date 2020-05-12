@@ -325,3 +325,4 @@ class ProgressBar(object):
             sys.stdout.write('completed: {}, elapsed: {}s, {:.1f} tasks/s'.format(
                 self.completed, int(elapsed + 0.5), fps))
         sys.stdout.flush()
+
