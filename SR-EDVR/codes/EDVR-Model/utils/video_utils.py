@@ -4,13 +4,16 @@ import ffmpeg
 import gc
 import shutil
 from pathlib import Path
+from PIL import Image
+import youtube_dl
+import re
 
 
 
 # Paths
 
 
-workfolder = Path('./video')
+workfolder = Path('./video').absolute()
 source_folder = workfolder / "source"
 inframes_root = workfolder / "inframes"
 audio_root = workfolder / "audio"

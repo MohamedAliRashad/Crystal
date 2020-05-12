@@ -1,42 +1,36 @@
-import os
-import os.path as osp
 import glob
-import logging
 import cv2
 import torch
-import numpy as np
-import re
-import youtube_dl
-from PIL import Image
-from pathlib import Path
+#import numpy as np
 from tqdm import tqdm
-
 import utils.util as util
 import data.util as data_util
 import models.archs.EDVR_arch as EDVR_arch
-from video_utils import *
+from utils.video_utils import *
 
 
 
 class Super_Resolution():
 
-	def __init__(self, data_mode, video_path, save_path):
+	def __init__(self, data_mode, video_path, save_path,chunk_size=100,finetune=True):
 		self.pretrained_models = Path('../experiments/pretrained_models')
 		self.data_mode = data_mode # options: vid4 | sharp_bicubic | blur_bicubic | blur | blur_comp
-		#self.fine_tuning = True
+		#self.fine_tune_stage2 = True
 		self.video_path = video_path
 		self.save_path = save_path
+		self.chunk_size = chunk_size
+		self.fine_tune_stage2 = finetune
 
 
 
-	def __edvrPredict(self, chunk_size):
+	def __edvrPredict(self, chunk_size,stage):
 	  device = torch.device('cuda')
 	  os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 	  data_mode = self.data_mode  
 	  # Vid4: SR
 	  # REDS4: sharp_bicubic (SR-clean), blur_bicubic (SR-blur);
 	  #        blur (deblur-clean), blur_comp (deblur-compression).
-	  stage = self.stage  # 1 or 2, use two stage strategy for REDS dataset.
+	  self.stage = stage  # 1 or 2, use two stage strategy for REDS dataset.
 	  flip_test = False
 	  ############################################################################
 	  #### model
@@ -83,10 +77,7 @@ class Super_Resolution():
 	  if stage == 2:
 	      HR_in = True
 	      back_RBs = 20
-	  if data_mode == 'TOF':
-	    model = TOF_arch.TOFlow(adapt_official=True)
-	  else:
-	    model = EDVR_arch.EDVR(128, N_in, 8, 5, back_RBs, predeblur=predeblur, HR_in=HR_in)
+	  model = EDVR_arch.EDVR(128, N_in, 8, 5, back_RBs, predeblur=predeblur, HR_in=HR_in)
 
 	  #### dataset
 	  test_dataset_folder = inframes_root
@@ -101,7 +92,7 @@ class Super_Resolution():
 	      padding = 'replicate'
 	  save_imgs = True
 
-	  save_folder = '/content/EDVR/codes/video/outframes'
+	  save_folder = str(outframes_root.absolute())
 	  util.mkdirs(save_folder)
 
 	  #### set up the models
@@ -161,24 +152,26 @@ class Super_Resolution():
 
 
 
-	def edvr_video(self, data_mode: str, original_quality: str, 
-	               chunk_size: int):
+	def edvr_video(self):
 
-	    # process frames: stage 1 
-	    self.__edvrPredict(self.data_mode, chunk_size, 1)
+#		extract_raw_frames(self.video_path)		## for if inframes doesn't yet exist
 
-	    # fine-tune stage 2
-	    if self.fine_tuning:
-	      # move the stage 1 processed frames over
-	      moveProcessedFrames()
-	      # process again
-	      self.__edvrPredict(self.data_mode, chunk_size, 2)
+		# process frames: stage 1 
+		self.__edvrPredict(self.chunk_size,1)
+		# fine-tune stage 2
+		if self.fine_tune_stage2:
+		# move the stage 1 processed frames over
+			moveProcessedFrames()
+		# process again
+			self.__edvrPredict(self.chunk_size, 2)
 
-	    # build back video
-	    build_video(self.video_path, self.save_path)
+		# build back video
+		build_video(self.video_path, self.save_path)
 
 
 
 
 if __name__ == '__main__':
+	enhancer = Super_Resolution('blur',Path('/content/video.mp4'),Path('/content/EDVR/codes/video/'))
+	enhancer.edvr_video()
 	pass
