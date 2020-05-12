@@ -1,6 +1,8 @@
 FROM ubuntu
 
-RUN apt-get update -y && apt-get install -y python3-pip python3-dev
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update -y && apt-get install -y python3-pip python3-dev tzdata libgtk2.0-dev
 
 # We copy just the requirements.txt first to leverage Docker cache
 COPY ./requirements.txt /app/requirements.txt

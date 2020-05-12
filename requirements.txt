@@ -1,1 +1,6 @@
-Flask
+torch
+flask
+opencv-python
+imageio
+scipy
+tqdm
