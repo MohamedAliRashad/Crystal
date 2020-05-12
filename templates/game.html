@@ -29,10 +29,11 @@
   </script>
   <script type="text/javascript">
     var request = new XMLHttpRequest();
-    request.open('POST', `/loading/` + "{{ filename }}" + '/');
+    request.open('POST', `/game/` + "{{ filename }}" + '/');
 
     request.onload = function () {
-      if (request.status === 200 && request.responseText === 'done') {
+      console.log(request)
+      if (request.status === 200) {
         // long process finished successfully, redirect user
         window.location = '/download/' + "{{ filename }}" + '/';
       } else {
@@ -2685,7 +2686,6 @@
         hideClass(".onlyforchrome");
       }
     </script>
-    s
 </body>
 
 </html>

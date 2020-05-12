@@ -12,7 +12,7 @@ from flask import (
     url_for,
 )
 from werkzeug.utils import secure_filename
-from subprocess import Popen
+from main import main
 
 UPLOAD_FOLDER = "./uploads"
 DOWNLOAD_FOLDER = "./downloads"
@@ -57,12 +57,18 @@ def Home():
     return render_template("home.html")
 
 
-@app.route("/loading/<filename>/", methods=["GET", "POST"])
-def Loading(filename):
+@app.route("/game/<filename>/", methods=["GET", "POST"])
+def Game(filename):
+    filename = filename.split("/")[-1].split(".")[0] + ".mp4"
     if request.method == "POST":
-        Popen(["python3", "main.py", os.path.join(
-            app.config["UPLOAD_FOLDER"], filename)])
-        return render_template("download.html", name=filename)
+        while True:
+            continue
+        # import time
+        # time.sleep(5)
+        # main(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        # print(filename)
+        return redirect(url_for("Download", filename=filename))
+        # return
     return render_template("game.html", filename=filename)
 
 
@@ -90,11 +96,8 @@ def Explore():
 def Profile():
     return render_template("profile.html")
 
-@app.route("/game")
-def Game():
-    return render_template("game.html")
 
-@app.route("/download/<filename>")
+@app.route("/download/<filename>/")
 def Download(filename):
     return render_template("download.html", name=filename)
 
