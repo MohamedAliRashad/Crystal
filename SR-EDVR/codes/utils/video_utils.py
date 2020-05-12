@@ -97,8 +97,8 @@ def moveProcessedFrames():
 
 
 
-def build_video(source_path):
-        out_path = result_folder / (
+def build_video(source_path, save_path):
+        out_path = save_path / (
             source_path.name.replace('.mp4', '_no_audio.mp4')
         )
         outframes_folder = outframes_root / (source_path.stem)
@@ -119,7 +119,6 @@ def build_video(source_path):
         result_path = result_folder / source_path.name
         if result_path.exists():
             result_path.unlink()
-        
         # making copy of non-audio version in case adding back audio doesn't apply or fails.
         shutil.copyfile(str(out_path), str(result_path))
 
