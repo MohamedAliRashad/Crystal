@@ -1,2 +1,6 @@
-torch
+torch==1.3.0
 flask
+ninja
+numpy
+tqdm
+opencv-python
