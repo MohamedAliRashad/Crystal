@@ -54,14 +54,14 @@ def load_DAIN():
 
     return module
 
-def infer_DAIN(model, meta_data):
+def infer_DAIN(model, meta_data, frames_folder):
 
     model.cuda()
-    frames = sorted(os.listdir(FRAMES_FOLDER))
+    frames = sorted(os.listdir(frames_folder))
     for frame in frames:
         os.rename(frame, str(int(frame.split(".")[0])*2).zfill(6))
     
-    frames = sorted(os.listdir(FRAMES_FOLDER))
+    frames = sorted(os.listdir(frames_folder))
     scale_precent = 50
     width = int(meta_data["size"][0] * scale_precent / 100)
     height = int(meta_data["size"][1] * scale_precent / 100)
@@ -178,7 +178,7 @@ def infer_DAIN(model, meta_data):
             (1, 2, 0),
         )
 
-        imageio.imsave(os.path.join(FRAMES_FOLDER, str(2*i + 1).zfill(6) + ".jpg"), cv2.resize(np.round(y_).astype(np.uint8), meta_data["size"], interpolation=cv2.INTER_AREA))
+        imageio.imsave(os.path.join(frames_folder, str(2*i + 1).zfill(6) + ".jpg"), cv2.resize(np.round(y_).astype(np.uint8), meta_data["size"], interpolation=cv2.INTER_AREA))
 
     meta_data["fps"] = meta_data["fps"]*2
 
