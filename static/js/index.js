@@ -92,7 +92,9 @@ function upload (url) {
   // request load handler (transfer complete)
   request.addEventListener ('load', function (e) {
     if (request.status == 200) {
-      show_alert (`${request.response.message}`, 'success');
+      show_alert (`File Uploaded`, 'success');
+      let filename = input.files[0].name;
+      window.location = `/loading/${filename}`;
     } else {
       show_alert (`${request.response.message}`, 'danger');
     }
@@ -115,6 +117,7 @@ function upload (url) {
   });
 
   // Open and send the request
+  // request.open ('post', url.replace ('http', 'https'));
   request.open ('post', url);
   request.send (data);
 

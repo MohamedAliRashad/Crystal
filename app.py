@@ -24,6 +24,7 @@ app.config["DOWNLOAD_FOLDER"] = DOWNLOAD_FOLDER
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SECRET_KEY"] = "super secret"
 
+
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -35,7 +36,7 @@ def Home():
 
     if not os.path.isdir(DOWNLOAD_FOLDER):
         os.mkdir(DOWNLOAD_FOLDER)
-    
+
     if request.method == "POST":
 
         file = request.files["file"]
@@ -47,13 +48,22 @@ def Home():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             res = make_response(jsonify({"message": "File uploaded"}), 200)
-            process = Popen(["python3", "main.py", os.path.join(app.config["UPLOAD_FOLDER"], filename)])
             return res
+
         else:
             res = make_response(jsonify({"message": "Invalid Video"}), 400)
             return res
 
     return render_template("home.html")
+
+
+@app.route("/loading/<filename>/", methods=["GET", "POST"])
+def Loading(filename):
+    if request.method == "POST":
+        Popen(["python3", "main.py", os.path.join(
+            app.config["UPLOAD_FOLDER"], filename)])
+        return render_template("download.html", name=filename)
+    return render_template("game.html", filename=filename)
 
 
 @app.route("/tour")
@@ -86,7 +96,8 @@ def Game():
 
 @app.route("/download")
 def Download():
-    name = os.listdir(os.path.join(app.root_path, app.config["DOWNLOAD_FOLDER"]))[0]
+    name = os.listdir(os.path.join(
+        app.root_path, app.config["DOWNLOAD_FOLDER"]))[0]
     return render_template("download.html", name=name)
 
 
@@ -98,4 +109,4 @@ def download_video(filename):
 
 if __name__ == "__main__":
     app.debug = True
-    app.run()
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))

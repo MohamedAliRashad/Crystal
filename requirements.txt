@@ -1,6 +1,9 @@
-torch==1.3.0
+torch
 flask
 ninja
 numpy
 tqdm
 opencv-python
+imageio
+youtube_dl
+ffmpeg
