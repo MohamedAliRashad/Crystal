@@ -1,15 +1,18 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html"%}
 
-<head>
-    <title>Vanilla</title>
-</head>
+{% block content %}
 
-<body>
+<div class="fix-5-12">
+    <div class="container ae-4">
 
-    <h1>Download Page</h1>
+        <p class="ae-3" style="font-size:2rem;">{{ name }}</p>
+        <div class="fix-4-12">
+            <img src="{{url_for('Download',filename=name)}}"" class=" img-thumbnail ae-3">
+        </div>
+        <br>
+        <button onclick="{{url_for('download_video',filename=name)}}" id="download_btn"
+            class="btn-lg btn-primary">Download</button>
+    </div>
 
-
-</body>
-
-</html>
+</div>
+{% endblock content %}

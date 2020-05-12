@@ -4,3 +4,6 @@ ninja
 numpy
 tqdm
 opencv-python
+imageio
+youtube_dl
+ffmpeg

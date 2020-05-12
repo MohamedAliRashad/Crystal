@@ -1,2 +1,2 @@
 # Crystal
-Do Less, Crystalize More
+Crystalize What's Important in Life

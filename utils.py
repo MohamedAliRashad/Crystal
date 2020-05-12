@@ -1,14 +1,32 @@
 import imageio
-import tqdm
+from tqdm import tqdm
 import warnings
 warnings.filterwarnings("ignore")
 
+import re
 import os
 import cv2
 import numpy as np
 import torch
+from glob import glob
 
-def video2frames(video_path, ):
+import os.path as osp
+import ffmpeg
+import shutil
+from pathlib import Path
+import youtube_dl
+from PIL import Image
+
+workfolder = Path('./video')
+source_folder = workfolder / "source"
+inframes_root = workfolder / "inframes"
+audio_root = workfolder / "audio"
+outframes_root = workfolder / "outframes"
+result_folder = workfolder / "result"
+source_img_path = inframes_root / "video_subfolders"
+
+
+def video2frames(video_path, output_dir):
 
     reader = imageio.get_reader(video_path)
     meta_data = reader.get_meta_data()
@@ -16,14 +34,17 @@ def video2frames(video_path, ):
     size = meta_data['size']
     n_frames = meta_data['nframes']
 
-    for i, img in tqdm.tqdm(enumerate(reader), total=n_frames):
-        imageio.imsave(os.path.join(FRAMES_FOLDER, '%08d.jpg' % i), img)
+    extract_raw_frames(video_path, output_dir)
+    vid_path = Path(video_path)
+    name = vid_path.name
+   
+    return {"fps": fps, "name": name, "size": size, "video_path": video_path}
 
-    return {"fps": fps, "name":video_path.split("/")[-1].split(".")[0], "size":size}
+def frames2video(save_path, frames_path, meta_data): 
+    video_path = meta_data["video_path"]
+    return build_video(video_path, frames_path, save_path, meta_data) # return the path of the saved video
 
-def frames2video(frames_path, meta_data):
-
-    os.system("ffmpeg -framerate {} -i %06d.jpg {}.mp4".format(meta_data["fps"], meta_data["name"]))
+    #os.system("ffmpeg -framerate {} -i %06d.jpg {}.mp4".format(meta_data["fps"], meta_data["name"]))
 
 def load_DAIN():
     # Let the magic happen
@@ -37,23 +58,26 @@ def load_DAIN():
 
     return module
 
-def infer_DAIN(model, meta_data):
+def infer_DAIN(model, meta_data, frames_folder):
 
     model.cuda()
-    frames = sorted(os.listdir(FRAMES_FOLDER))
-    for frame in frames:
-        os.rename(frame, str(int(frame.split(".")[0])*2).zfill(6))
-    
-    frames = sorted(os.listdir(FRAMES_FOLDER))
-    scale_precent = 50
+
+    # frames = sorted(glob(os.path.join(frames_folder, "*.jpg")))
+    frames = sorted(frames_folder.glob("*.jpg"))
+
+    scale_precent = 100
     width = int(meta_data["size"][0] * scale_precent / 100)
     height = int(meta_data["size"][1] * scale_precent / 100)
     dim = (width, height)
     model.eval()
+    # j = 0
     for i in tqdm(range(len(frames) - 1)):
 
-        image1 = cv2.resize(imageio.imread(frames[i]), dim, interpolation=cv2.INTER_AREA)
-        image2 = cv2.resize(imageio.imread(frames[i + 1]), dim, interpolation=cv2.INTER_AREA)
+        # image1 = cv2.resize(imageio.imread(frames[i]), dim, interpolation=cv2.INTER_AREA)
+        # image2 = cv2.resize(imageio.imread(frames[i + 1]), dim, interpolation=cv2.INTER_AREA)
+        
+        image1 = imageio.imread(frames[i])
+        image2 = imageio.imread(frames[i + 1])
         
         X0 = torch.from_numpy(np.transpose(image1, (2, 0, 1)).astype("float32") / 255.0).type(torch.cuda.FloatTensor)
         X1 = torch.from_numpy(np.transpose(image2, (2, 0, 1)).astype("float32") / 255.0).type(torch.cuda.FloatTensor)
@@ -161,8 +185,166 @@ def infer_DAIN(model, meta_data):
             (1, 2, 0),
         )
 
-        imageio.imsave(os.path.join(FRAMES_FOLDER, str(2*i + 1).zfill(6) + ".jpg"), cv2.resize(np.round(y_).astype(np.uint8), meta_data["size"], interpolation=cv2.INTER_AREA))
-
+        # imageio.imsave(os.path.join(frames_folder, str(j).zfill(6) + ".jpg"), cv2.resize(image1, meta_data["size"], interpolation=cv2.INTER_AREA))
+        # imageio.imsave(os.path.join(frames_folder, str(j+1).zfill(6) + ".jpg"), cv2.resize(np.round(y_).astype(np.uint8), meta_data["size"], interpolation=cv2.INTER_AREA))
+        imageio.imsave(os.path.join(frames_folder, str(2*i+1).zfill(6) + ".jpg"), np.round(y_).astype(np.uint8))
+        # j = j + 2
+        
+    # imageio.imsave(os.path.join(frames_folder, str(j).zfill(6) + ".jpg"), cv2.resize(image2, meta_data["size"], interpolation=cv2.INTER_AREA))
     meta_data["fps"] = meta_data["fps"]*2
 
     return meta_data
+
+
+
+
+
+def get_fps(source_path):
+    probe = ffmpeg.probe(source_path)
+    stream_data = next(
+        (stream for stream in probe['streams'] if stream['codec_type'] == 'video'),
+        None,
+    )
+    return stream_data['avg_frame_rate']
+
+def download_video_from_url(source_url, source_path, quality):
+    source_path = Path(source_path)
+    if source_path.exists():
+        source_path.unlink()
+
+    ydl_opts = {
+        'format': 'bestvideo[height<={}][ext=mp4]+bestaudio[ext=m4a]/mp4'.format(quality),
+        'outtmpl': str(source_path),
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([source_url])
+
+
+def preProcess(imag_path_l, multiple):
+  '''Need to resize images for blurred model (needs to be multiples of 16)'''
+  for img_path in imag_path_l:
+    im = Image.open(img_path)
+    h, w = im.size
+    # resize so they are multiples of 4 or 16 (for blurred)
+    h = h - h % multiple
+    w = w - w % multiple
+    im = im.resize((h,w))
+    im.save(img_path)
+
+def purge_images(dir):
+  for f in os.listdir(dir):
+    if re.search('.*?\.jpg', f):
+      os.remove(os.path.join(dir, f))
+
+
+def extract_raw_frames(source_path, save_path):
+
+    inframes_root = Path(save_path)
+    inframes_folder = inframes_root / (source_path.stem)
+    inframe_path_template = str(inframes_folder / '%6d.jpg')
+    inframes_folder.mkdir(parents=True, exist_ok=True)
+    purge_images(inframes_folder)
+    ffmpeg.input(str(source_path)).output(
+        str(inframe_path_template), format='image2', vcodec='mjpeg', qscale=0
+    ).run(capture_stdout=True)
+
+
+
+def make_subfolders(img_path_l, chunk_size): # frames must be in subfolders for EDVR model
+  i = 0
+  subFolderList = []
+  source_img_path.mkdir(parents=True, exist_ok=True)
+  for img in img_path_l:
+    if i % chunk_size == 0:
+      img_path = source_img_path / str(i)
+      img_path.mkdir(parents=True, exist_ok=True)
+      subFolderList.append(str(img_path))
+    i+=1
+    img_name = osp.basename(img)
+    img_path_name = img_path / img_name
+    shutil.copyfile(img, img_path_name)
+
+  return subFolderList
+
+
+
+def remove_subfolders():
+  shutil.rmtree(source_img_path, ignore_errors=True, onerror=None)
+
+
+def moveProcessedFrames():
+  shutil.rmtree(inframes_root)
+  os.rename(outframes_root, inframes_root)
+
+
+
+
+def build_video(source_path, frames_dir, save_path, meta_data):
+        out_path = save_path / (
+            source_path.name.replace('.mp4', '_no_audio.mp4')
+        )
+        outframes_root = frames_dir
+        outframes_folder = outframes_root / (source_path.stem)
+        outframes_path_template = str(outframes_folder / '%5d.jpg')
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        if out_path.exists():
+            out_path.unlink()
+        fps = meta_data["fps"]
+        print('Original FPS is: ', fps)
+
+        ffmpeg.input(
+            str(outframes_path_template),
+            format='image2',
+            vcodec='mjpeg',
+            framerate=fps,
+        ).output(str(out_path), crf=17, vcodec='libx264').run(capture_stdout=True)
+
+        result_path = save_path 
+        if result_path.exists():
+            result_path.unlink()
+
+        # making copy of non-audio version in case adding back audio doesn't apply or fails.
+        shutil.copyfile(str(out_path), str(result_path))
+
+        # adding back sound here
+        audio_file = Path(str(source_path).replace('.mp4', '.aac'))
+        if audio_file.exists():
+            audio_file.unlink()
+
+        os.system(
+            'ffmpeg -y -i "'
+            + str(source_path)
+            + '" -vn -acodec copy "'
+            + str(audio_file)
+            + '"'
+        )
+
+        if audio_file.exists:
+            os.system(
+                'ffmpeg -y -i "'
+                + str(out_path)
+                + '" -i "'
+                + str(audio_file)
+                + '" -shortest -c:v copy -c:a aac -b:a 256k "'
+                + str(result_path)
+                + '"'
+            )
+        return result_path
+
+def get_thumbnail(video_path):
+	cwd = os.getcwd()
+	thumb_path = osp.join(cwd, "thumb.jpg")
+
+	if osp.exists(thumb_path):
+		os.remove(thumb_path)
+
+
+	command = 'ffmpeg -ss 3 -i {} -vf "select=gt(scene\,0.4)" -frames:v 5 -vsync vfr -vf fps=fps=1/600 thumb.jpg'.format(video_path)
+	os.system(command)
+
+	return thumb_path
+
+
+if __name__ == "__main__":
+    pass
+    # print(Path('./video/tree/movie.mp4').name)
