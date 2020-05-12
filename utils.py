@@ -320,3 +320,17 @@ def build_video(source_path, frames_dir, save_path, meta_data):
             )
         return result_path
 
+def get_thumbnail(video_path):
+	cwd = os.getcwd()
+	thumb_path = osp.join(cwd, "thumb.jpg")
+
+	if osp.exists(thumb_path):
+		os.remove(thumb_path)
+
+
+	command = 'ffmpeg -ss 3 -i "' + video_path + '" -vf "select=gt(scene\,0.4)" -frames:v 5 -vsync vfr -vf fps=fps=1/600 thumb.jpg'
+	os.system(command)
+
+	return thumb_path
+
+
