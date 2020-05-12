@@ -1,18 +1,21 @@
 import imageio
-import tqdm
+from tqdm import tqdm
 import warnings
 warnings.filterwarnings("ignore")
 
+import re
 import os
 import cv2
 import numpy as np
 import torch
-
+from glob import glob
 
 import os.path as osp
 import ffmpeg
 import shutil
 from pathlib import Path
+import youtube_dl
+from PIL import Image
 
 workfolder = Path('./video')
 source_folder = workfolder / "source"
@@ -23,7 +26,7 @@ result_folder = workfolder / "result"
 source_img_path = inframes_root / "video_subfolders"
 
 
-def video2frames(video_path, ):
+def video2frames(video_path, output_dir):
 
     reader = imageio.get_reader(video_path)
     meta_data = reader.get_meta_data()
@@ -31,9 +34,10 @@ def video2frames(video_path, ):
     size = meta_data['size']
     n_frames = meta_data['nframes']
 
-    extract_raw_frames(video_path, FRAMES_FOLDER)
+    extract_raw_frames(video_path, output_dir)
     vid_path = Path(video_path)
     name = vid_path.name
+   
     return {"fps": fps, "name": name, "size": size, "video_path": video_path}
 
 def frames2video(save_path, frames_path, meta_data): 
@@ -57,20 +61,23 @@ def load_DAIN():
 def infer_DAIN(model, meta_data, frames_folder):
 
     model.cuda()
-    frames = sorted(os.listdir(frames_folder))
-    for frame in frames:
-        os.rename(frame, str(int(frame.split(".")[0])*2).zfill(6))
-    
-    frames = sorted(os.listdir(frames_folder))
-    scale_precent = 50
+
+    # frames = sorted(glob(os.path.join(frames_folder, "*.jpg")))
+    frames = sorted(frames_folder.glob("*.jpg"))
+
+    scale_precent = 100
     width = int(meta_data["size"][0] * scale_precent / 100)
     height = int(meta_data["size"][1] * scale_precent / 100)
     dim = (width, height)
     model.eval()
+    # j = 0
     for i in tqdm(range(len(frames) - 1)):
 
-        image1 = cv2.resize(imageio.imread(frames[i]), dim, interpolation=cv2.INTER_AREA)
-        image2 = cv2.resize(imageio.imread(frames[i + 1]), dim, interpolation=cv2.INTER_AREA)
+        # image1 = cv2.resize(imageio.imread(frames[i]), dim, interpolation=cv2.INTER_AREA)
+        # image2 = cv2.resize(imageio.imread(frames[i + 1]), dim, interpolation=cv2.INTER_AREA)
+        
+        image1 = imageio.imread(frames[i])
+        image2 = imageio.imread(frames[i + 1])
         
         X0 = torch.from_numpy(np.transpose(image1, (2, 0, 1)).astype("float32") / 255.0).type(torch.cuda.FloatTensor)
         X1 = torch.from_numpy(np.transpose(image2, (2, 0, 1)).astype("float32") / 255.0).type(torch.cuda.FloatTensor)
@@ -178,8 +185,12 @@ def infer_DAIN(model, meta_data, frames_folder):
             (1, 2, 0),
         )
 
-        imageio.imsave(os.path.join(frames_folder, str(2*i + 1).zfill(6) + ".jpg"), cv2.resize(np.round(y_).astype(np.uint8), meta_data["size"], interpolation=cv2.INTER_AREA))
-
+        # imageio.imsave(os.path.join(frames_folder, str(j).zfill(6) + ".jpg"), cv2.resize(image1, meta_data["size"], interpolation=cv2.INTER_AREA))
+        # imageio.imsave(os.path.join(frames_folder, str(j+1).zfill(6) + ".jpg"), cv2.resize(np.round(y_).astype(np.uint8), meta_data["size"], interpolation=cv2.INTER_AREA))
+        imageio.imsave(os.path.join(frames_folder, str(2*i+1).zfill(6) + ".jpg"), np.round(y_).astype(np.uint8))
+        # j = j + 2
+        
+    # imageio.imsave(os.path.join(frames_folder, str(j).zfill(6) + ".jpg"), cv2.resize(image2, meta_data["size"], interpolation=cv2.INTER_AREA))
     meta_data["fps"] = meta_data["fps"]*2
 
     return meta_data
@@ -230,7 +241,7 @@ def extract_raw_frames(source_path, save_path):
 
     inframes_root = Path(save_path)
     inframes_folder = inframes_root / (source_path.stem)
-    inframe_path_template = str(inframes_folder / '%5d.jpg')
+    inframe_path_template = str(inframes_folder / '%6d.jpg')
     inframes_folder.mkdir(parents=True, exist_ok=True)
     purge_images(inframes_folder)
     ffmpeg.input(str(source_path)).output(
@@ -328,9 +339,12 @@ def get_thumbnail(video_path):
 		os.remove(thumb_path)
 
 
-	command = 'ffmpeg -ss 3 -i "' + video_path + '" -vf "select=gt(scene\\,0.4)" -frames:v 5 -vsync vfr -vf fps=fps=1/600 thumb.jpg'
+	command = 'ffmpeg -ss 3 -i {} -vf "select=gt(scene\,0.4)" -frames:v 5 -vsync vfr -vf fps=fps=1/600 thumb.jpg'.format(video_path)
 	os.system(command)
 
 	return thumb_path
 
 
+if __name__ == "__main__":
+    pass
+    # print(Path('./video/tree/movie.mp4').name)
