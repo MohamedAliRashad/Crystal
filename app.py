@@ -59,16 +59,11 @@ def Home():
 
 @app.route("/game/<filename>/", methods=["GET", "POST"])
 def Game(filename):
-    filename = filename.split("/")[-1].split(".")[0] + ".mp4"
+
     if request.method == "POST":
-        while True:
-            continue
-        # import time
-        # time.sleep(5)
-        # main(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-        # print(filename)
-        return redirect(url_for("Download", filename=filename))
-        # return
+        video_name = main(filename)
+        return redirect(url_for("Download", filename=video_name))
+
     return render_template("game.html", filename=filename)
 
 

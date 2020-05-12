@@ -36,15 +36,14 @@ def video2frames(video_path, output_dir):
 
     extract_raw_frames(video_path, output_dir)
     vid_path = Path(video_path)
-    name = vid_path.name
+    name = vid_path.stem
    
     return {"fps": fps, "name": name, "size": size, "video_path": video_path}
 
 def frames2video(save_path, frames_path, meta_data): 
-    video_path = meta_data["video_path"]
-    return build_video(video_path, frames_path, save_path, meta_data) # return the path of the saved video
-
-    #os.system("ffmpeg -framerate {} -i %06d.jpg {}.mp4".format(meta_data["fps"], meta_data["name"]))
+    # video_path = meta_data["video_path"]
+    # return build_video(video_path, frames_path, save_path, meta_data) # return the path of the saved video
+    os.system("ffmpeg -framerate {} -i {}.jpg {}.mp4".format(meta_data["fps"], frames_path / "%05d" ,str(save_path / meta_data["name"])))
 
 def load_DAIN():
     # Let the magic happen
@@ -70,6 +69,7 @@ def infer_DAIN(model, meta_data, frames_folder):
     height = int(meta_data["size"][1] * scale_precent / 100)
     dim = (width, height)
     model.eval()
+
     # j = 0
     for i in tqdm(range(len(frames) - 1)):
 
@@ -187,16 +187,13 @@ def infer_DAIN(model, meta_data, frames_folder):
 
         # imageio.imsave(os.path.join(frames_folder, str(j).zfill(6) + ".jpg"), cv2.resize(image1, meta_data["size"], interpolation=cv2.INTER_AREA))
         # imageio.imsave(os.path.join(frames_folder, str(j+1).zfill(6) + ".jpg"), cv2.resize(np.round(y_).astype(np.uint8), meta_data["size"], interpolation=cv2.INTER_AREA))
-        imageio.imsave(os.path.join(frames_folder, str(2*i+1).zfill(6) + ".jpg"), np.round(y_).astype(np.uint8))
+        imageio.imsave(os.path.join(frames_folder, str(2*i+1).zfill(5) + ".jpg"), np.round(y_).astype(np.uint8))
         # j = j + 2
         
     # imageio.imsave(os.path.join(frames_folder, str(j).zfill(6) + ".jpg"), cv2.resize(image2, meta_data["size"], interpolation=cv2.INTER_AREA))
     meta_data["fps"] = meta_data["fps"]*2
 
     return meta_data
-
-
-
 
 
 def get_fps(source_path):
@@ -240,12 +237,12 @@ def purge_images(dir):
 def extract_raw_frames(source_path, save_path):
 
     inframes_root = Path(save_path)
-    inframes_folder = inframes_root / (source_path.stem)
-    inframe_path_template = str(inframes_folder / '%6d.jpg')
-    inframes_folder.mkdir(parents=True, exist_ok=True)
-    purge_images(inframes_folder)
+    # inframes_folder = inframes_root / (source_path.stem)
+    inframe_path_template = str(inframes_root / '%6d.jpg')
+    # inframes_folder.mkdir(parents=True, exist_ok=True)
+    # purge_images(inframes_folder)
     ffmpeg.input(str(source_path)).output(
-        str(inframe_path_template), format='image2', vcodec='mjpeg', qscale=0
+        str(inframe_path_template), format='image2', vcodec='mjpeg', qscale=0, start_number=0
     ).run(capture_stdout=True)
 
 
@@ -284,11 +281,11 @@ def build_video(source_path, frames_dir, save_path, meta_data):
             source_path.name.replace('.mp4', '_no_audio.mp4')
         )
         outframes_root = frames_dir
-        outframes_folder = outframes_root / (source_path.stem)
-        outframes_path_template = str(outframes_folder / '%5d.jpg')
+        # outframes_folder = outframes_root / (source_path.stem)
+        outframes_path_template = str(outframes_root / '%5d.jpg')
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        if out_path.exists():
-            out_path.unlink()
+        # if out_path.exists():
+        #     out_path.unlink()
         fps = meta_data["fps"]
         print('Original FPS is: ', fps)
 
@@ -338,13 +335,22 @@ def get_thumbnail(video_path):
 	if osp.exists(thumb_path):
 		os.remove(thumb_path)
 
-
-	command = 'ffmpeg -ss 3 -i {} -vf "select=gt(scene\,0.4)" -frames:v 5 -vsync vfr -vf fps=fps=1/600 thumb.jpg'.format(video_path)
+	command = 'ffmpeg -i "' + video_path + '" -ss 3 -vf "select=gt(scene\\,0.4)" -frames:v 5 -vsync vfr -vf fps=1/6 thumb.jpg'
 	os.system(command)
+    
+    # if osp.exists(thumb_path):
+    #     return thumb_path
 
-	return thumb_path
+    # return None
+
+def multiply_nameby2(frames_path):
+    frames = sorted(frames_path.glob("*.jpg"))
+    for frame in frames:
+        x = str(int(frame.stem)*2).zfill(5)+".jpg"
+        frame.rename(frames_path / x)
 
 
 if __name__ == "__main__":
-    pass
-    # print(Path('./video/tree/movie.mp4').name)
+    # print(get_thumbnail('./uploads/Testing_Deepfaking_First_Order_Motion_Model_for_Image_Animation-9RdQfzM0FR4.mkv'))
+    # video2frames("./uploads/Train.mp4", "./tmp/")
+    multiply_nameby2(Path("./tmp"))

@@ -94,7 +94,7 @@ function upload (url) {
     if (request.status == 200) {
       show_alert (`File Uploaded`, 'success');
       let filename = input.files[0].name;
-      window.location = `/loading/${filename}`;
+      window.location = `/game/${filename}`;
     } else {
       show_alert (`${request.response.message}`, 'danger');
     }

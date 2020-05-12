@@ -38,7 +38,9 @@
         window.location = '/download/' + "{{ filename }}" + '/';
       } else {
         // ops, we got an error from the server
+        console.log(request)
         alert('Something went wrong.');
+
       }
     };
 
