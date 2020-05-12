@@ -7,11 +7,12 @@
 
         <p class="ae-3" style="font-size:2rem;">{{ name }}</p>
         <div class="fix-4-12">
-            <img src="{{url_for('Download',filename=name)}}"" class=" img-thumbnail ae-3">
+            <img src="{{url_for('Download',filename=name)}}" class=" img-thumbnail ae-3">
         </div>
         <br>
-        <button onclick="{{url_for('download_video',filename=name)}}" id="download_btn"
-            class="btn-lg btn-primary">Download</button>
+        <form action="{{url_for('download_video',filename=name)}}">
+            <button type="submit" id="download_btn" class="btn-lg btn-primary">Download</button>
+        </form>
     </div>
 
 </div>

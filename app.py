@@ -60,9 +60,11 @@ def Home():
 @app.route("/loading/<filename>/", methods=["GET", "POST"])
 def Loading(filename):
     if request.method == "POST":
-        Popen(["python3", "main.py", os.path.join(
-            app.config["UPLOAD_FOLDER"], filename)])
-        return render_template("download.html", name=filename)
+        # Popen(["python3", "main.py", os.path.join(
+        #     app.config["UPLOAD_FOLDER"], filename)])
+        import time
+        time.sleep(5)
+        return redirect(url_for("Download", filename=filename))
     return render_template("game.html", filename=filename)
 
 
@@ -91,7 +93,7 @@ def Profile():
     return render_template("profile.html")
 
 
-@app.route("/download/<filename>")
+@app.route("/download/<filename>/")
 def Download(filename):
     return render_template("download.html", name=filename)
 

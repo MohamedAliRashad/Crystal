@@ -32,12 +32,16 @@
     request.open('POST', `/loading/` + "{{ filename }}" + '/');
 
     request.onload = function () {
-      if (request.status === 200 && request.responseText === 'done') {
+      if (request.status === 200) {
+        filename = "{{filename}}";
+        console.log(filename);
         // long process finished successfully, redirect user
         window.location = '/download/' + "{{ filename }}" + '/';
       } else {
         // ops, we got an error from the server
+        console.log(request)
         alert('Something went wrong.');
+
       }
     };
 
