@@ -328,7 +328,7 @@ def get_thumbnail(video_path):
 		os.remove(thumb_path)
 
 
-	command = 'ffmpeg -ss 3 -i "' + video_path + '" -vf "select=gt(scene\,0.4)" -frames:v 5 -vsync vfr -vf fps=fps=1/600 thumb.jpg'
+	command = 'ffmpeg -ss 3 -i "' + video_path + '" -vf "select=gt(scene\\,0.4)" -frames:v 5 -vsync vfr -vf fps=fps=1/600 thumb.jpg'
 	os.system(command)
 
 	return thumb_path
