@@ -10,7 +10,10 @@ Crystalize What's Important in Life
 1. Download all required dependencies with this
 ```pip3 install -r requirements.txt```.
 
-2. And just run the app like this ```python3 app.py```.
+2. Download models and start setup with this
+```bash ./dependencies.sh```.
+
+3. And just run the app like this ```python3 app.py```.
 
 **Note**: Cuda and Cudnn is required for this to work and we don't provide them (so you are on your own).
 **Note**: Open an issue with any problem you face, we might help.

@@ -1,7 +1,7 @@
 #! /bin/bash/
-##  cwd = SR_EDVR
-mkdir -p ./experiments/pretrained_models/
-cd ./codes/archs/dcn/
+##  cwd = Crystal
+mkdir -p ./SR_EDVR/experiments/pretrained_models/
+cd ./SR_EDVR/codes/archs/dcn/
 python setup.py develop
 cd ../../../experiments/pretrained_models/
 
@@ -19,5 +19,3 @@ wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1G46
 wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1kfArevFT8hzbUT2QWXFmUl983LTebQGP' -O EDVR_REDS_SR_Stage2.pth
 wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=13c-VxMdf8h7MGX-_y4xamxo1hhOMYzsH' -O EDVR_REDS_SRblur_Stage2.pth
 wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1Y1y6v40dL74Kgf5fxbGd0QC010LFCBYz' -O EDVR_REDS_deblur_Stage2.pth
-
-
