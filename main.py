@@ -23,7 +23,7 @@ def main(video_path):
     multiply_nameby2(TEMP_FOLDER)
 
     meta_data = infer_DAIN(model, meta_data, TEMP_FOLDER)
-    sr = Super_Resolution('blur')
+    sr = Super_Resolution('sharp_bicubic')
     sr.edvr_video(meta_data)
     frames2video(result_folder, outframes_root , meta_data)
 
