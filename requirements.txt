@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+=======
+>>>>>>> master
 flask
 ninja
 numpy

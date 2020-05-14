@@ -12,13 +12,15 @@ from flask import (
     url_for,
 )
 from werkzeug.utils import secure_filename
+from main import main
 
 UPLOAD_FOLDER = "./uploads"
-FRAMES_FOLDER = "./frames"
+DOWNLOAD_FOLDER = "./downloads"
 ALLOWED_EXTENSIONS = {"mp4", "mkv"}
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["DOWNLOAD_FOLDER"] = DOWNLOAD_FOLDER
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SECRET_KEY"] = "super secret"
 
@@ -32,6 +34,9 @@ def Home():
     if not os.path.isdir(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)
 
+    if not os.path.isdir(DOWNLOAD_FOLDER):
+        os.mkdir(DOWNLOAD_FOLDER)
+
     if request.method == "POST":
 
         file = request.files["file"]
@@ -44,6 +49,7 @@ def Home():
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             res = make_response(jsonify({"message": "File uploaded"}), 200)
             return res
+
         else:
             res = make_response(jsonify({"message": "Invalid Video"}), 400)
             return res
@@ -51,21 +57,52 @@ def Home():
     return render_template("home.html")
 
 
-@app.route("/download")
-def Download():
-    return render_template("download.html")
+@app.route("/game/<filename>/", methods=["GET", "POST"])
+def Game(filename):
+
+    if request.method == "POST":
+        video_name = main(filename)
+        return redirect(url_for("Download", filename=video_name))
+
+    return render_template("game.html", filename=filename)
 
 
-@app.route("/loading")
-def Loading():
-    return render_template("loading.html")
+@app.route("/tour")
+def Tour():
+    return render_template("tour.html")
 
 
-@app.route("/uploads/<filename>")
-def uploaded_file(filename):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+@app.route("/upgrade")
+def Upgrade():
+    return render_template("upgrade.html")
+
+
+@app.route("/help")
+def Help():
+    return render_template("help.html")
+
+
+@app.route("/explore")
+def Explore():
+    return render_template("explore.html")
+
+
+@app.route("/profile")
+def Profile():
+    return render_template("profile.html")
+
+
+@app.route("/download/<filename>/")
+def Download(filename):
+    return render_template("download.html", name=filename)
+
+
+@app.route("/downloads/<path:filename>", methods=["GET", "POST"])
+def download_video(filename):
+    downloads = os.path.join(app.root_path, app.config["DOWNLOAD_FOLDER"])
+    return send_from_directory(directory=downloads, filename=filename, as_attachment=True)
 
 
 if __name__ == "__main__":
     app.debug = True
-    app.run()
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
