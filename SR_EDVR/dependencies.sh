@@ -1,9 +1,10 @@
 #! /bin/bash/
-##  cwd = SR-EDVR
-!mkdir -p ./experiments/pretrained_models/
+##  cwd = SR_EDVR
+mkdir -p ./experiments/pretrained_models/
 cd ./codes/archs/dcn/
 python setup.py develop
 cd ../../../experiments/pretrained_models/
+
 ## get stage 1 models
 wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1PYULZmtpsmY4Wx8M9f4owdLIwcwQFEmi' -O EDVR_REDS_SR_L.pth
 wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1ZCl0aU8isEnUCsUYv9rIZZQrGo7vBFUH' -O EDVR_REDS_deblur_L.pth
