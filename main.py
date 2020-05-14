@@ -1,13 +1,18 @@
 import argparse
-from utils import video2frames, frames2video, load_DAIN, infer_DAIN, multiply_nameby2
+#from utils import video2frames, frames2video, load_DAIN, infer_DAIN, multiply_nameby2
+from utils import *
 import os
 import torch
 from pathlib import Path
 from shutil import rmtree
+from SR_EDVR.codes.super_resolution import Super_Resolution as Super_Resolution
 
-TEMP_FOLDER = Path("./tmp")
 
 def main(video_path):
+
+    TEMP_FOLDER = Path(osp.join(inframes_root, Path(video_path).stem))
+    if TEMP_FOLDER.exists():
+        rmtree(TEMP_FOLDER)
 
     torch.cuda.empty_cache()
     model = load_DAIN()
@@ -17,10 +22,10 @@ def main(video_path):
     meta_data = video2frames(video_path, TEMP_FOLDER)
     multiply_nameby2(TEMP_FOLDER)
 
-    print("Running DAIN ....")
     meta_data = infer_DAIN(model, meta_data, TEMP_FOLDER)
-    
-    frames2video(Path("./downloads/"), TEMP_FOLDER, meta_data)
+    sr = Super_Resolution('blur')
+    sr.edvr_video(meta_data)
+    frames2video(result_folder, outframes_root , meta_data)
 
     rmtree(TEMP_FOLDER)
 
@@ -30,8 +35,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("video_file")
     args = parser.parse_args()
-
-    if TEMP_FOLDER.exists():
-        rmtree(TEMP_FOLDER)
 
     main(args.video_file)

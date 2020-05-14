@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 import torch
 from glob import glob
-
+import gc
 import os.path as osp
 import ffmpeg
 import shutil
@@ -17,7 +17,7 @@ from pathlib import Path
 import youtube_dl
 from PIL import Image
 
-workfolder = Path('./video')
+workfolder = Path(osp.join(Path(__file__).parent.absolute(),'SR_EDVR/codes/video'))
 source_folder = workfolder / "source"
 inframes_root = workfolder / "inframes"
 audio_root = workfolder / "audio"
@@ -25,6 +25,10 @@ outframes_root = workfolder / "outframes"
 result_folder = workfolder / "result"
 source_img_path = inframes_root / "video_subfolders"
 
+
+def clean_mem():
+    torch.cuda.empty_cache()
+    gc.collect()
 
 def video2frames(video_path, output_dir):
 
@@ -36,14 +40,14 @@ def video2frames(video_path, output_dir):
 
     extract_raw_frames(video_path, output_dir)
     vid_path = Path(video_path)
-    name = vid_path.stem
+    name = vid_path.name
    
     return {"fps": fps, "name": name, "size": size, "video_path": video_path}
 
+
 def frames2video(save_path, frames_path, meta_data): 
-    # video_path = meta_data["video_path"]
-    # return build_video(video_path, frames_path, save_path, meta_data) # return the path of the saved video
-    os.system("ffmpeg -framerate {} -i {}.jpg {}.mp4".format(meta_data["fps"], frames_path / "%05d" ,str(save_path / meta_data["name"])))
+    video_path = meta_data["video_path"]
+    return build_video(video_path, frames_path, save_path, meta_data) # return the path of the saved video
 
 def load_DAIN():
     # Let the magic happen
@@ -237,10 +241,10 @@ def purge_images(dir):
 def extract_raw_frames(source_path, save_path):
 
     inframes_root = Path(save_path)
-    # inframes_folder = inframes_root / (source_path.stem)
+    #inframes_folder = inframes_root / (source_path.stem)
     inframe_path_template = str(inframes_root / '%6d.jpg')
     # inframes_folder.mkdir(parents=True, exist_ok=True)
-    # purge_images(inframes_folder)
+    purge_images(inframes_root)
     ffmpeg.input(str(source_path)).output(
         str(inframe_path_template), format='image2', vcodec='mjpeg', qscale=0, start_number=0
     ).run(capture_stdout=True)
@@ -260,7 +264,6 @@ def make_subfolders(img_path_l, chunk_size): # frames must be in subfolders for 
     img_name = osp.basename(img)
     img_path_name = img_path / img_name
     shutil.copyfile(img, img_path_name)
-
   return subFolderList
 
 
@@ -281,11 +284,11 @@ def build_video(source_path, frames_dir, save_path, meta_data):
             source_path.name.replace('.mp4', '_no_audio.mp4')
         )
         outframes_root = frames_dir
-        # outframes_folder = outframes_root / (source_path.stem)
-        outframes_path_template = str(outframes_root / '%5d.jpg')
+        outframes_folder = outframes_root / (source_path.stem)
+        outframes_path_template = str(outframes_folder / '%5d.jpg')
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        # if out_path.exists():
-        #     out_path.unlink()
+        if out_path.exists():
+            out_path.unlink()
         fps = meta_data["fps"]
         print('Original FPS is: ', fps)
 
@@ -296,7 +299,7 @@ def build_video(source_path, frames_dir, save_path, meta_data):
             framerate=fps,
         ).output(str(out_path), crf=17, vcodec='libx264').run(capture_stdout=True)
 
-        result_path = save_path 
+        result_path = save_path / source_path.name
         if result_path.exists():
             result_path.unlink()
 
@@ -328,6 +331,7 @@ def build_video(source_path, frames_dir, save_path, meta_data):
             )
         return result_path
 
+
 def get_thumbnail(video_path):
 	cwd = os.getcwd()
 	thumb_path = osp.join(cwd, "thumb.jpg")
@@ -350,7 +354,7 @@ def multiply_nameby2(frames_path):
         frame.rename(frames_path / x)
 
 
-if __name__ == "__main__":
-    # print(get_thumbnail('./uploads/Testing_Deepfaking_First_Order_Motion_Model_for_Image_Animation-9RdQfzM0FR4.mkv'))
-    # video2frames("./uploads/Train.mp4", "./tmp/")
-    multiply_nameby2(Path("./tmp"))
+#if __name__ == "__main__":
+#    # print(get_thumbnail('./uploads/Testing_Deepfaking_First_Order_Motion_Model_for_Image_Animation-9RdQfzM0FR4.mkv'))
+#    # video2frames("./uploads/Train.mp4", "./tmp/")
+#    multiply_nameby2(Path("./tmp"))
