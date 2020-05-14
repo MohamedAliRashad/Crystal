@@ -3,7 +3,7 @@ ninja
 numpy
 tqdm
 imageio
-pillow==6.1
+pillow>=6.2.2
 fastai==1.0.51
 wandb
 tensorboardX==1.6
