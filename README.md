@@ -15,9 +15,9 @@ Crystalize What's Important in Life
 
 3. And just run the app like this ```python3 app.py```.
 
-**Note**: Cuda and Cudnn is required for this to work and we don't provide them (so you are on your own).
-**Note**: Open an issue with any problem you face, we might help.
+**Note**: [**Cuda**](https://developer.nvidia.com/cuda-downloads) and [**Cudnn**](https://developer.nvidia.com/cuda-downloads) is required for this to work and we don't provide them (so you are on your own).
 
+**Note**: Open an issue with any problem you face, we might help :cowboy_hat_face:
 
 ## News
 - **14 May 2020** Added New Icon & integrated better Super-Resolution techniques
