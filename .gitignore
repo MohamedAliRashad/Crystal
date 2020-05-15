@@ -133,3 +133,4 @@ test*.py
 *.jpg
 *.mp4
 uploads/*
+downloads/*
