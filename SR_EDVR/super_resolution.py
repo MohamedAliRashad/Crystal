@@ -5,10 +5,11 @@ import torch
 from torch.hub import load_state_dict_from_url
 from tqdm import tqdm
 
-import SR_EDVR.EDVR_arch as EDVR_arch
-import SR_EDVR.utils.data_utils as data_util
-import SR_EDVR.utils.util as util
 from utils import *
+
+from .EDVR_arch import EDVR
+from .utils.data_utils import index_generation, read_img_seq
+from .utils.util import flipx4_forward, mkdirs, single_forward, tensor2img
 
 Weights = {
     "EDVR_REDS_SR_L": "https://drive.google.com/uc?export=download&id=1PYULZmtpsmY4Wx8M9f4owdLIwcwQFEmi",
@@ -87,9 +88,7 @@ class Super_Resolution:
 		if stage == 2:
 			HR_in = True
 			back_RBs = 20
-		model = EDVR_arch.EDVR(
-			128, N_in, 8, 5, back_RBs, predeblur=predeblur, HR_in=HR_in
-		)
+		model = EDVR(128, N_in, 8, 5, back_RBs, predeblur=predeblur, HR_in=HR_in)
 
 		#### evaluation
 		crop_border = 0
@@ -104,7 +103,7 @@ class Super_Resolution:
 		save_folder = str(
 			outframes_root.absolute()
 		)  ## intermediate frames , not a video , not an end result
-		util.mkdirs(save_folder)
+		mkdirs(save_folder)
 
 		#### set up the models
 		state_dict = load_state_dict_from_url(Weights[model_name])
@@ -127,7 +126,7 @@ class Super_Resolution:
 			)  # outframes/train_station
 			img_path_l = sorted(glob(osp.join(subfolder, "*")))  ## all 1600 frames
 			if save_imgs:
-				util.mkdirs(save_subfolder)
+				mkdirs(save_subfolder)
 				purge_images(save_subfolder)
 
 			# preprocess images (needed for blurred models)
@@ -140,7 +139,7 @@ class Super_Resolution:
 			#### read LQ and GT images in chunks of 1000
 			for subSubFolder in subFolderList:
 				clean_mem()
-				imgs_LQ = data_util.read_img_seq(subSubFolder)
+				imgs_LQ = read_img_seq(subSubFolder)
 				subSubFolder_l = sorted(glob(osp.join(subSubFolder, "*")))
 				max_idx = len(subSubFolder_l)
 				avg_psnr, avg_psnr_border, avg_psnr_center, N_border, N_center = (
@@ -154,7 +153,7 @@ class Super_Resolution:
 				# process each image
 				for img_idx, img_path in tqdm(enumerate(subSubFolder_l)):
 					img_name = osp.splitext(osp.basename(img_path))[0]
-					select_idx = data_util.index_generation(
+					select_idx = index_generation(
 						img_idx, max_idx, N_in, padding=padding
 					)
 					imgs_in = (
@@ -164,10 +163,10 @@ class Super_Resolution:
 					)
 
 					if flip_test:
-						output = util.flipx4_forward(model, imgs_in)
+						output = flipx4_forward(model, imgs_in)
 					else:
-						output = util.single_forward(model, imgs_in)
-					output = util.tensor2img(output.squeeze(0))
+						output = single_forward(model, imgs_in)
+					output = tensor2img(output.squeeze(0))
 
 					if save_imgs:
 						cv2.imwrite(

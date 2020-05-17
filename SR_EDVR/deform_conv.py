@@ -1,12 +1,11 @@
-import math
 import logging
+import math
 
 import torch
 import torch.nn as nn
 from torch.autograd import Function
 from torch.autograd.function import once_differentiable
 from torch.nn.modules.utils import _pair
-
 from torch.utils.cpp_extension import load
 
 deform_conv_cuda = load(

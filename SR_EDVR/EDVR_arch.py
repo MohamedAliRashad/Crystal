@@ -1,13 +1,12 @@
 ''' network architecture for EDVR '''
 import functools
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import SR_EDVR.arch_util as arch_util
-try:
-    from SR_EDVR.deform_conv import ModulatedDeformConvPack as DCN
-except ImportError:
-    raise ImportError('Failed to import DCNv2 module.')
+
+from .arch_util import ResidualBlock_noBN, make_layer
+from .deform_conv import ModulatedDeformConvPack as DCN
 
 
 class Predeblur_ResNet_Pyramid(nn.Module):
@@ -24,7 +23,7 @@ class Predeblur_ResNet_Pyramid(nn.Module):
             self.conv_first_3 = nn.Conv2d(nf, nf, 3, 2, 1, bias=True)
         else:
             self.conv_first = nn.Conv2d(3, nf, 3, 1, 1, bias=True)
-        basic_block = functools.partial(arch_util.ResidualBlock_noBN, nf=nf)
+        basic_block = functools.partial(ResidualBlock_noBN, nf=nf)
         self.RB_L1_1 = basic_block()
         self.RB_L1_2 = basic_block()
         self.RB_L1_3 = basic_block()
@@ -212,7 +211,7 @@ class EDVR(nn.Module):
         self.is_predeblur = True if predeblur else False
         self.HR_in = True if HR_in else False
         self.w_TSA = w_TSA
-        ResidualBlock_noBN_f = functools.partial(arch_util.ResidualBlock_noBN, nf=nf)
+        ResidualBlock_noBN_f = functools.partial(ResidualBlock_noBN, nf=nf)
 
         #### extract features (for each frame)
         if self.is_predeblur:
@@ -225,7 +224,7 @@ class EDVR(nn.Module):
                 self.conv_first_3 = nn.Conv2d(nf, nf, 3, 2, 1, bias=True)
             else:
                 self.conv_first = nn.Conv2d(3, nf, 3, 1, 1, bias=True)
-        self.feature_extraction = arch_util.make_layer(ResidualBlock_noBN_f, front_RBs)
+        self.feature_extraction = make_layer(ResidualBlock_noBN_f, front_RBs)
         self.fea_L2_conv1 = nn.Conv2d(nf, nf, 3, 2, 1, bias=True)
         self.fea_L2_conv2 = nn.Conv2d(nf, nf, 3, 1, 1, bias=True)
         self.fea_L3_conv1 = nn.Conv2d(nf, nf, 3, 2, 1, bias=True)
@@ -238,7 +237,7 @@ class EDVR(nn.Module):
             self.tsa_fusion = nn.Conv2d(nframes * nf, nf, 1, 1, bias=True)
 
         #### reconstruction
-        self.recon_trunk = arch_util.make_layer(ResidualBlock_noBN_f, back_RBs)
+        self.recon_trunk = make_layer(ResidualBlock_noBN_f, back_RBs)
         #### upsampling
         self.upconv1 = nn.Conv2d(nf, nf * 4, 3, 1, 1, bias=True)
         self.upconv2 = nn.Conv2d(nf, 64 * 4, 3, 1, 1, bias=True)
