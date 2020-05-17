@@ -1,7 +1,7 @@
 import functools
 import torch.nn as nn
 import torch.nn.functional as F
-import SR_EDVR.codes.archs.arch_util as arch_util
+import SR_EDVR.arch_util as arch_util
 
 
 class MSRResNet(nn.Module):

@@ -11,7 +11,7 @@ from torch.utils.cpp_extension import load
 
 deform_conv_cuda = load(
     name="deform_conv",
-    sources=["SR_EDVR/archs/dcn/deform_conv_cuda.cpp", "SR_EDVR/archs/dcn/deform_conv_cuda_kernel.cu"],
+    sources=["SR_EDVR/dcn/deform_conv_cuda.cpp", "SR_EDVR/dcn/deform_conv_cuda_kernel.cu"],
     verbose=True,
 )
 

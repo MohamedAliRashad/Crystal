@@ -5,7 +5,7 @@ import torch
 from torch.hub import load_state_dict_from_url
 from tqdm import tqdm
 
-import SR_EDVR.archs.EDVR_arch as EDVR_arch
+import SR_EDVR.EDVR_arch as EDVR_arch
 import SR_EDVR.utils.data_utils as data_util
 import SR_EDVR.utils.util as util
 from utils import *
