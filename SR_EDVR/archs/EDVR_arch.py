@@ -3,9 +3,9 @@ import functools
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import SR_EDVR.codes.archs.arch_util as arch_util
+import SR_EDVR.archs.arch_util as arch_util
 try:
-    from SR_EDVR.codes.archs.dcn.deform_conv import ModulatedDeformConvPack as DCN
+    from SR_EDVR.archs.deform_conv import ModulatedDeformConvPack as DCN
 except ImportError:
     raise ImportError('Failed to import DCNv2 module.')
 

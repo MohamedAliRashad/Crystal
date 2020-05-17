@@ -5,7 +5,7 @@ import os
 import torch
 from pathlib import Path
 from shutil import rmtree
-from SR_EDVR.codes.super_resolution import Super_Resolution as Super_Resolution
+from SR_EDVR.super_resolution import Super_Resolution
 
 
 def main(video_path):
