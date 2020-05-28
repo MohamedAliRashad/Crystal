@@ -10,10 +10,9 @@ Crystalize What's Important in Life
 1. Download all required dependencies with this
 ```pip3 install -r requirements.txt```.
 
-2. Download models and start setup with this
-```bash ./dependencies.sh```.
+2. Run the app with this ```python3 app.py```
 
-3. And just run the app like this ```python3 app.py```.
+3. Go to this http://0.0.0.0:5000/
 
 **Note**: [**Cuda**](https://developer.nvidia.com/cuda-downloads) and [**Cudnn**](https://developer.nvidia.com/cuda-downloads) is required for this to work and we don't provide them (so you are on your own).
 
@@ -27,7 +26,7 @@ Crystalize What's Important in Life
 - [ ] Consider making an API for developers.
 - [ ] Add YouTube video downloading feaure.
 - [ ] Add content in tour, explore .. pages.
-- [ ] Optimize the code for faster inference.
+- [x] Optimize the code for faster inference.
 - [x] Make a Dockerfile of the project for easy deployment.
 - [ ] Deploy on a server with a good domain name.
 
