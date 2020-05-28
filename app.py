@@ -61,7 +61,7 @@ def Home():
 def Game(filename):
 
     if request.method == "POST":
-        video_name = main(filename)
+        video_name = main(os.path.join(UPLOAD_FOLDER, filename), DOWNLOAD_FOLDER)
         return redirect(url_for("Download", filename=video_name))
 
     return render_template("game.html", filename=filename)
