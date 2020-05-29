@@ -8,7 +8,7 @@ from SR_EDVR.super_resolution import SuperResolution
 TEMP_FOLDER1 = Path('./tmp1/')
 TEMP_FOLDER2 = Path('./tmp2/')
 
-def main(video_path, output_path):
+def main(video_path, output_path, stage2=False):
 
     # Prepare the environment for the process
     clean_mem()
@@ -38,11 +38,13 @@ def main(video_path, output_path):
     SuperResolution(TEMP_FOLDER2, TEMP_FOLDER1, 1, "sharp_bicubic")
     purge_images(TEMP_FOLDER2)
 
-    # Step3: Run Stage 2 for refinement
-    SuperResolution(TEMP_FOLDER1, TEMP_FOLDER2, 2, "sharp_bicubic")
-
-    # Recreate the video
-    build_video(TEMP_FOLDER2, output_path, meta_data)
+    # Step3 (optional): Run Stage 2 for refinement
+    if stage2:
+        SuperResolution(TEMP_FOLDER1, TEMP_FOLDER2, 2, "sharp_bicubic")
+        build_video(TEMP_FOLDER2, output_path, meta_data)
+    else:
+        # Recreate the video
+        build_video(TEMP_FOLDER1, output_path, meta_data)
 
     # Clean Everything
     clean_mem()
@@ -55,6 +57,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("video_file")
     parser.add_argument("--output", "-o", default="./downloads/")
+    parser.add_argument("--stage2", action='store_true', default="./downloads/")
     args = parser.parse_args()
 
-    main(args.video_file, args.output)
+    main(args.video_file, args.output, stage2=args.stage2)
