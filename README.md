@@ -21,8 +21,9 @@ Crystalize What's Important in Life
 **Note**: Open an issue with any problem you face, we might help :cowboy_hat_face:
 
 ## News
-- **14 May 2020** New Icon & integration of a better Super-Resolution techniques
-- **29 May 2020** Tested Colab Environment & seperation of the pipeline in `main.py`
+
+- **29 May 2020** Tested Colab Environment & Seperation of the pipeline in `main.py`
+- **14 May 2020** Added New Icon & integration of a better Super-Resolution techniques
 
 ## Future Work
 - [x] Provide a working colab notebook in case there was problems in getting the site up.
