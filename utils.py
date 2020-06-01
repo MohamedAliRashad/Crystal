@@ -281,9 +281,12 @@ def build_video(frames_dir, save_dir, meta_data, audio_path=None):
     save_dir = Path(save_dir)
     out_path = str(save_dir / meta_data["name"])
 
+    frames_dir = Path(frames_dir)
+    inp_path = str(frames_dir / '%6d.jpg')
+
     # Use ffmpeg to reconstruct the video
     ffmpeg.input(
-        str(frames_dir), format="image2", vcodec="mjpeg", framerate=meta_data["fps"]
+        inp_path, format="image2", vcodec="mjpeg", framerate=meta_data["fps"]
     ).output(out_path, crf=17, vcodec="libx264").run(capture_stdout=True)
 
 
