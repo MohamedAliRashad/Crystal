@@ -3,6 +3,8 @@
 </p>
 
 # Crystal
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MohamedAliRashad/Crystal/blob/master/Crystal.ipynb)
+
 Crystalize What's Important in Life
 
 ## How To Use
@@ -19,10 +21,12 @@ Crystalize What's Important in Life
 **Note**: Open an issue with any problem you face, we might help :cowboy_hat_face:
 
 ## News
-- **14 May 2020** Added New Icon & integrated better Super-Resolution techniques
+
+- **29 May 2020** Tested Colab Environment & Seperation of the pipeline in `main.py`
+- **14 May 2020** Added New Icon & integration of a better Super-Resolution techniques
 
 ## Future Work
-- [ ] Provide a working colab notebook in case there was problems in getting the site up.
+- [x] Provide a working colab notebook in case there was problems in getting the site up.
 - [ ] Consider making an API for developers.
 - [ ] Add YouTube video downloading feaure.
 - [ ] Add content in tour, explore .. pages.
