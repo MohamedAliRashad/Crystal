@@ -21,7 +21,8 @@ Crystalize What's Important in Life
 **Note**: Open an issue with any problem you face, we might help :cowboy_hat_face:
 
 ## News
-
+- **2 June 2020** Added Few Examples to show results of our pipline [YouTube](https://www.youtube.com/watch?v=0lbod6pHAwg)
+- **1 June 2020** Made a [YouTube](https://www.youtube.com/watch?v=Fuum9eexgUg) video demonstrating what we have accomplished so far 
 - **29 May 2020** Tested Colab Environment & Seperation of the pipeline in `main.py`
 - **14 May 2020** Added New Icon & integration of a better Super-Resolution techniques
 
