@@ -4,6 +4,7 @@
 
 # Crystal
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MohamedAliRashad/Crystal/blob/master/Crystal.ipynb)
+[![YouTube Video Views](https://img.shields.io/youtube/views/0lbod6pHAwg?label=YouTube&logo=YouTube&logoColor=Red&style=plastic)](https://www.youtube.com/watch?v=0lbod6pHAwg)
 
 Crystalize What's Important in Life
 
